@@ -13,7 +13,7 @@ public class DatabaseManager {
     private static final HikariDataSource ds;
 
 
-    /**
+    /*
      * Static block to load the PostgreSQL JDBC driver.
      * This is APPARENTLY necessary to ensure the driver is registered before any connection attempts. (why??) TODO: understand
      */
