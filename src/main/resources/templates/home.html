@@ -25,6 +25,11 @@
     <div th:if="${userAgent}">
         <p><small>Your browser: <span th:text="${userAgent}"></span></small></p>
     </div>
+
+    <!--/*@thymesVar id="dbStatus" type="java.lang.String"*/-->
+    <div th:if="${dbStatus}">
+        <p><small>DB connected: <span th:text="${dbStatus}"></span></small></p>
+    </div>
 </body>
 
 </html>
