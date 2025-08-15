@@ -200,5 +200,36 @@ public class Song {
         }
     }
 
+    public static List<Song> getSongsNotInPlaylist(Connection con, User user, UUID playlistId) throws SQLException {
+        if (user == null || user.getUsername() == null) {
+            throw new IllegalArgumentException("User cannot be null and must have a valid username");
+        }
+
+        String sql = "SELECT * FROM songs WHERE owner = ? AND id NOT IN " +
+                     "(SELECT song_id FROM playlistsongs WHERE playlist_id = ?) ORDER BY title";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            ps.setObject(2, playlistId);
+            ResultSet rs = ps.executeQuery();
+            List<Song> songs = new ArrayList<>();
+            while (rs.next()) {
+                songs.add(new Song(
+                    (UUID) rs.getObject("id"),
+                    rs.getString("title"),
+                    rs.getString("album"),
+                    rs.getString("artist"),
+                    rs.getString("artwork"),
+                    rs.getString("audio_file"),
+                    rs.getString("audio_mime_type"),
+                    rs.getInt("release_year"),
+                    rs.getString("genre"),
+                    rs.getString("owner")
+                ));
+            }
+            return songs;
+        }
+    }
+
 
 }
