@@ -2,11 +2,12 @@ package org.titilda.music.base.database;
 
 import org.titilda.music.base.config.ConfigManager;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DatabaseManager {
+
+    private static Connection c = null;
+
     /**
      * Static block to load the PostgreSQL JDBC driver.
      * This is necessary to ensure the driver is registered before any connection attempts.
@@ -22,7 +23,7 @@ public class DatabaseManager {
      * Returns a connection to the PostgreSQL database.
      */
     public static Connection getConnection() throws SQLException {
-        Connection c;
+
         try {
             c = DriverManager.getConnection(
                     ConfigManager.getString(ConfigManager.ConfigKey.DATABASE_URL),
@@ -36,4 +37,28 @@ public class DatabaseManager {
         System.out.println("Opened database successfully");
         return c;
     }
+
+    public String getPasswordHash(String username) {
+        String passwordHash = null;
+        String sql = "SELECT password_hash FROM Users WHERE username = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, username);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    passwordHash = rs.getString("password_hash");
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error retrieving password hash for user " + username + ": " + e.getMessage());
+            throw new RuntimeException("Failed to retrieve password hash", e);
+        }
+        
+        return passwordHash;
+    }
+
 }
