@@ -72,19 +72,4 @@ public class PlaylistSong {
         PlaylistSong that = (PlaylistSong) o;
         return Objects.equals(id, that.id);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "PlaylistSong{" +
-                "id=" + id +
-                ", playlistId=" + playlistId +
-                ", songId=" + songId +
-                ", position=" + position +
-                '}';
-    }
 }

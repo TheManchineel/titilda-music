@@ -141,22 +141,4 @@ public class Song {
         Song song = (Song) o;
         return Objects.equals(id, song.id);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Song{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", album='" + album + '\'' +
-                ", artist='" + artist + '\'' +
-                ", releaseYear=" + releaseYear +
-                ", genre='" + genre + '\'' +
-                ", owner='" + owner + '\'' +
-                '}';
-    }
 }

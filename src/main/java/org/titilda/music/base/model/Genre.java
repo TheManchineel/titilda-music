@@ -33,15 +33,4 @@ public class Genre {
         return Objects.equals(name, genre.name);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    @Override
-    public String toString() {
-        return "Genre{" +
-                "name='" + name + '\'' +
-                '}';
-    }
 }

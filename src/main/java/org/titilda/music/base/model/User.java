@@ -52,17 +52,4 @@ public class User {
         User user = (User) o;
         return Objects.equals(username, user.username);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(username);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", fullName='" + fullName + '\'' +
-                '}';
-    }
 }

@@ -83,20 +83,4 @@ public class Playlist {
         Playlist playlist = (Playlist) o;
         return Objects.equals(id, playlist.id);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Playlist{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", owner='" + owner + '\'' +
-                ", createdAt=" + createdAt +
-                ", isManuallySorted=" + isManuallySorted +
-                '}';
-    }
 }
