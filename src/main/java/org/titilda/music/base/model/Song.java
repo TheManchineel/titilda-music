@@ -25,11 +25,12 @@ public class Song {
     private String owner;
 
     // Default constructor
-    public Song() {}
+    public Song() {
+    }
 
     // Constructor with all fields except id (for new songs)
-    public Song(String title, String album, String artist, String artwork, 
-                String audioFile, String audioMimeType, Integer releaseYear, 
+    public Song(String title, String album, String artist, String artwork,
+                String audioFile, String audioMimeType, Integer releaseYear,
                 String genre, String owner) {
         this.id = UUID.randomUUID(); // Auto-generate ID for new songs
         this.title = title;
@@ -155,7 +156,7 @@ public class Song {
             throw new IllegalArgumentException("Title cannot be null or empty");
 
         String sql = "INSERT INTO songs (id, title, album, artist, artwork, audio_file, audio_mime_type, release_year, genre, owner) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setObject(1, this.id);
@@ -175,8 +176,8 @@ public class Song {
 
     public static List<Song> getSongsInPlaylist(Connection con, UUID playlistId) throws SQLException {
         String sql = "SELECT s.* FROM songs s " +
-                     "JOIN playlistsongs ps ON s.id = ps.song_id " +
-                     "WHERE ps.playlist_id = ? ORDER BY ps.position";
+                "JOIN playlistsongs ps ON s.id = ps.song_id " +
+                "WHERE ps.playlist_id = ? ORDER BY ps.position";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setObject(1, playlistId);
@@ -184,16 +185,16 @@ public class Song {
             List<Song> songs = new ArrayList<>();
             while (rs.next()) {
                 songs.add(new Song(
-                    (UUID) rs.getObject("id"),
-                    rs.getString("title"),
-                    rs.getString("album"),
-                    rs.getString("artist"),
-                    rs.getString("artwork"),
-                    rs.getString("audio_file"),
-                    rs.getString("audio_mime_type"),
-                    rs.getInt("release_year"),
-                    rs.getString("genre"),
-                    rs.getString("owner")
+                        (UUID) rs.getObject("id"),
+                        rs.getString("title"),
+                        rs.getString("album"),
+                        rs.getString("artist"),
+                        rs.getString("artwork"),
+                        rs.getString("audio_file"),
+                        rs.getString("audio_mime_type"),
+                        rs.getInt("release_year"),
+                        rs.getString("genre"),
+                        rs.getString("owner")
                 ));
             }
             return songs;
@@ -206,7 +207,7 @@ public class Song {
         }
 
         String sql = "SELECT * FROM songs WHERE owner = ? AND id NOT IN " +
-                     "(SELECT song_id FROM playlistsongs WHERE playlist_id = ?) ORDER BY title";
+                "(SELECT song_id FROM playlistsongs WHERE playlist_id = ?) ORDER BY title";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
@@ -215,21 +216,48 @@ public class Song {
             List<Song> songs = new ArrayList<>();
             while (rs.next()) {
                 songs.add(new Song(
-                    (UUID) rs.getObject("id"),
-                    rs.getString("title"),
-                    rs.getString("album"),
-                    rs.getString("artist"),
-                    rs.getString("artwork"),
-                    rs.getString("audio_file"),
-                    rs.getString("audio_mime_type"),
-                    rs.getInt("release_year"),
-                    rs.getString("genre"),
-                    rs.getString("owner")
+                        (UUID) rs.getObject("id"),
+                        rs.getString("title"),
+                        rs.getString("album"),
+                        rs.getString("artist"),
+                        rs.getString("artwork"),
+                        rs.getString("audio_file"),
+                        rs.getString("audio_mime_type"),
+                        rs.getInt("release_year"),
+                        rs.getString("genre"),
+                        rs.getString("owner")
                 ));
             }
             return songs;
         }
     }
 
+    //ordered by title and by time of release
+    public static List<Song> getSongsOfUser(Connection con, User user) throws SQLException {
+        if (user == null || user.getUsername() == null) {
+            throw new IllegalArgumentException("User cannot be null and must have a valid username");
+        }
+        String sql = "SELECT * FROM songs WHERE owner = ? ORDER BY title, release_year DESC";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            ResultSet rs = ps.executeQuery();
+            List<Song> songs = new ArrayList<>();
+            while (rs.next()) {
+                songs.add(new Song(
+                        (UUID) rs.getObject("id"),
+                        rs.getString("title"),
+                        rs.getString("album"),
+                        rs.getString("artist"),
+                        rs.getString("artwork"),
+                        rs.getString("audio_file"),
+                        rs.getString("audio_mime_type"),
+                        rs.getInt("release_year"),
+                        rs.getString("genre"),
+                        rs.getString("owner")
+                ));
+            }
+            return songs;
+        }
 
+    }
 }
