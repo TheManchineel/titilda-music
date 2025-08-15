@@ -58,13 +58,20 @@ public class User {
         return Objects.equals(username, user.username);
     }
 
-    public boolean insert(User user) throws SQLException {
+    public boolean insert() throws SQLException {
+        if( this.username == null)
+            throw new IllegalArgumentException("Username cannot be null");
+        if( this.passwordHash == null)
+            throw new IllegalArgumentException("Password hash cannot be null");
+        if( this.fullName == null)
+            throw new IllegalArgumentException("Full name cannot be null");
+
         String sql = "INSERT INTO Users (username, password_hash, full_name) VALUES (?, ?, ?) ON CONFLICT (username) DO NOTHING";
         try (Connection con = DatabaseManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getPasswordHash());
-            ps.setString(3, user.getFullName());
+            ps.setString(1, this.getUsername());
+            ps.setString(2, this.getPasswordHash());
+            ps.setString(3, this.getFullName());
             return ps.executeUpdate() == 1;
         }
     }
