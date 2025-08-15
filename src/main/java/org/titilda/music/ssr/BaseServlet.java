@@ -42,7 +42,7 @@ public abstract class BaseServlet extends HttpServlet {
      * Renders the template and writes it to the response.
      * This method handles the common logic of template rendering.
      */
-    protected void renderTemplate(HttpServletRequest request, HttpServletResponse response)
+    protected final void renderTemplate(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             // Set response content type

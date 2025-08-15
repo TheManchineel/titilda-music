@@ -12,7 +12,7 @@ import java.util.Map;
  * Demonstrates how to use the abstract servlet pattern with Thymeleaf
  * templates.
  */
-@WebServlet(name = "HomeServlet", urlPatterns = { "/", "/home" })
+@WebServlet(urlPatterns = { "/home" })
 public class HomeServlet extends BaseServlet {
 
     @Override
