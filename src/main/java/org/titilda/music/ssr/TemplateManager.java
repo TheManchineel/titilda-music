@@ -22,8 +22,7 @@ public class TemplateManager {
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode("HTML");
         templateResolver.setCharacterEncoding("UTF-8");
-        templateResolver.setCacheable(false); // Set to true in production
-        
+        templateResolver.setCacheable(false); // TODO: set this to true maybe?
         templateEngine.setTemplateResolver(templateResolver);
     }
     

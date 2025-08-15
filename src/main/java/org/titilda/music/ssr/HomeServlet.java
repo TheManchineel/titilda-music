@@ -3,6 +3,7 @@ package org.titilda.music.ssr;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.titilda.music.base.config.ConfigManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class HomeServlet extends BaseServlet {
         Map<String, Object> variables = new HashMap<>();
 
         // Add some example variables
-        variables.put("message", "Welcome to TiTilda Music! 🎵");
+        variables.put("message", "Welcome to TiTilda Music! 🎵 " + ConfigManager.getString(ConfigManager.ConfigKey.AUTH_SECRET));
         variables.put("currentTime", new java.util.Date());
         variables.put("userAgent", request.getHeader("User-Agent"));
 
