@@ -15,7 +15,7 @@ public class DatabaseManager {
 
     /**
      * Static block to load the PostgreSQL JDBC driver.
-     * This is necessary to ensure the driver is registered before any connection attempts.
+     * This is APPARENTLY necessary to ensure the driver is registered before any connection attempts. (why??) TODO: understand
      */
     static {
         try {
