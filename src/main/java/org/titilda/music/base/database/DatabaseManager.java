@@ -3,6 +3,7 @@ package org.titilda.music.base.database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.titilda.music.base.config.ConfigManager;
+import static org.titilda.music.base.config.ConfigManager.ConfigKey;
 
 import java.sql.*;
 
