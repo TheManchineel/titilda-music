@@ -1,6 +1,14 @@
 package org.titilda.music.base.model;
 
+import org.titilda.music.base.database.DatabaseManager;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -82,5 +90,30 @@ public class Playlist {
         if (o == null || getClass() != o.getClass()) return false;
         Playlist playlist = (Playlist) o;
         return Objects.equals(id, playlist.id);
+    }
+
+    public List<Playlist> getPlaylistsByOwner(User user, Connection con) {
+        if (user == null || user.getUsername() == null) {
+            throw new IllegalArgumentException("User cannot be null and must have a valid username");
+        }
+
+        String sql = "SELECT id, name, owner, created_at, is_manually_sorted FROM playlists WHERE owner = ? ORDER BY created_at DESC, name";
+        List<Playlist> playlists = new ArrayList<>();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    UUID id = (UUID) rs.getObject("id");
+                    String name = rs.getString("name");
+                    String owner = rs.getString("owner");
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    boolean isManuallySorted = rs.getBoolean("is_manually_sorted");
+                    playlists.add(new Playlist(id, name, owner, createdAt, isManuallySorted));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch playlists for owner: " + user.getUsername(), e);
+        }
+        return playlists;
     }
 }
