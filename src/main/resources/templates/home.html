@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TiTilda Music</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <h1>TiTilda Music!</h1>
+    <p>Welcome to the music application</p>
+
+    <!--/*@thymesVar id="message" type="java.lang.String"*/-->
+    <div th:if="${message}">
+        <p th:text="${message}"></p>
+    </div>
+
+    <!--/*@thymesVar id="currentTime" type="java.util.Date"*/-->
+    <div th:if="${currentTime}">
+        <p>Current time: <span th:text="${#dates.format(currentTime, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+    </div>
+
+    <!--/*@thymesVar id="userAgent" type="java.lang.String"*/-->
+    <div th:if="${userAgent}">
+        <p><small>Your browser: <span th:text="${userAgent}"></span></small></p>
+    </div>
+</body>
+
+</html>
