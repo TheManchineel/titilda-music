@@ -1,5 +1,11 @@
 package org.titilda.music.base.model;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -141,4 +147,58 @@ public class Song {
         Song song = (Song) o;
         return Objects.equals(id, song.id);
     }
+
+    public boolean insert(Connection con) throws SQLException {
+        if (this.id == null)
+            throw new IllegalArgumentException("ID cannot be null");
+        if (this.title == null || this.title.isEmpty())
+            throw new IllegalArgumentException("Title cannot be null or empty");
+
+        String sql = "INSERT INTO songs (id, title, album, artist, artwork, audio_file, audio_mime_type, release_year, genre, owner) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setObject(1, this.id);
+            ps.setString(2, this.title);
+            ps.setString(3, this.album);
+            ps.setString(4, this.artist);
+            ps.setString(5, this.artwork);
+            ps.setString(6, this.audioFile);
+            ps.setString(7, this.audioMimeType);
+            ps.setObject(8, this.releaseYear);
+            ps.setString(9, this.genre);
+            ps.setString(10, this.owner);
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public static List<Song> getSongsInPlaylist(Connection con, UUID playlistId) throws SQLException {
+        String sql = "SELECT s.* FROM songs s " +
+                     "JOIN playlistsongs ps ON s.id = ps.song_id " +
+                     "WHERE ps.playlist_id = ? ORDER BY ps.position";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setObject(1, playlistId);
+            ResultSet rs = ps.executeQuery();
+            List<Song> songs = new ArrayList<>();
+            while (rs.next()) {
+                songs.add(new Song(
+                    (UUID) rs.getObject("id"),
+                    rs.getString("title"),
+                    rs.getString("album"),
+                    rs.getString("artist"),
+                    rs.getString("artwork"),
+                    rs.getString("audio_file"),
+                    rs.getString("audio_mime_type"),
+                    rs.getInt("release_year"),
+                    rs.getString("genre"),
+                    rs.getString("owner")
+                ));
+            }
+            return songs;
+        }
+    }
+
+
 }
