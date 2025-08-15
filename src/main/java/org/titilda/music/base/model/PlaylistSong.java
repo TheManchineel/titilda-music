@@ -1,5 +1,9 @@
 package org.titilda.music.base.model;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -71,5 +75,21 @@ public class PlaylistSong {
         if (o == null || getClass() != o.getClass()) return false;
         PlaylistSong that = (PlaylistSong) o;
         return Objects.equals(id, that.id);
+    }
+
+    public boolean insert(Connection con) throws SQLException {
+        String sql = "INSERT INTO playlistsongs (playlist_id, song_id, position) VALUES (?, ?, ?) RETURNING id";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setObject(1, playlistId);
+            ps.setObject(2, songId);
+            ps.setInt(3, position);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    this.id = rs.getInt("id");
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
