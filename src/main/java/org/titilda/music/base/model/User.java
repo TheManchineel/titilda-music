@@ -1,5 +1,10 @@
 package org.titilda.music.base.model;
 
+import org.titilda.music.base.database.DatabaseManager;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Objects;
 
 /**
@@ -52,4 +57,16 @@ public class User {
         User user = (User) o;
         return Objects.equals(username, user.username);
     }
+
+    public boolean insert(User user) throws SQLException {
+        String sql = "INSERT INTO Users (username, password_hash, full_name) VALUES (?, ?, ?) ON CONFLICT (username) DO NOTHING";
+        try (Connection con = DatabaseManager.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPasswordHash());
+            ps.setString(3, user.getFullName());
+            return ps.executeUpdate() == 1;
+        }
+    }
+
 }
