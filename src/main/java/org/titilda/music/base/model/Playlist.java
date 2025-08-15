@@ -92,7 +92,26 @@ public class Playlist {
         return Objects.equals(id, playlist.id);
     }
 
-    public List<Playlist> getPlaylistsByOwner(User user, Connection con) {
+    public boolean insert(Connection con) throws SQLException {
+        if (this.name == null || this.name.isEmpty()) {
+            throw new IllegalArgumentException("Playlist name cannot be null or empty");
+        }
+        if (this.owner == null || this.owner.isEmpty()) {
+            throw new IllegalArgumentException("Playlist owner cannot be null or empty");
+        }
+
+        String sql = "INSERT INTO playlists (id, name, owner, created_at, is_manually_sorted) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setObject(1, this.id);
+            ps.setString(2, this.name);
+            ps.setString(3, this.owner);
+            ps.setTimestamp(4, this.createdAt);
+            ps.setBoolean(5, this.isManuallySorted);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public static List<Playlist> getPlaylistsByOwner(User user, Connection con) {
         if (user == null || user.getUsername() == null) {
             throw new IllegalArgumentException("User cannot be null and must have a valid username");
         }
