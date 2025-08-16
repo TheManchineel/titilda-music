@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Abstract base servlet that provides Thymeleaf template rendering
@@ -20,7 +19,7 @@ import java.util.stream.Stream;
  * Subclasses need to implement getTemplatePath() and optionally override
  * prepareTemplateVariables() to provide template-specific data.
  */
-public abstract sealed class BaseServlet extends HttpServlet permits AuthenticatedBaseServlet, BaseGetServlet {
+public abstract sealed class BaseServlet extends HttpServlet permits BaseAuthenticatedServlet, BaseGetServlet {
     private static final String AUTHENTICATION_COOKIE_NAME = "titilda_music_login_token";
 
     /**

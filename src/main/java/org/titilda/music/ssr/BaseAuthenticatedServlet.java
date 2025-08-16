@@ -8,7 +8,7 @@ import org.titilda.music.base.model.User;
 
 import java.util.Map;
 
-public abstract sealed class AuthenticatedBaseServlet extends BaseServlet permits AuthenticatedBaseGetServlet {
+public abstract sealed class BaseAuthenticatedServlet extends BaseServlet permits BaseAuthenticatedGetServlet {
     abstract protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response, User user);
 
     @Override

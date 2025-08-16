@@ -17,7 +17,7 @@ import java.util.Map;
  * templates.
  */
 @WebServlet(urlPatterns = { "/home" })
-public class HomeServlet extends AuthenticatedBaseGetServlet {
+public class HomeServlet extends BaseAuthenticatedGetServlet {
 
     @Override
     protected String getTemplatePath() {
