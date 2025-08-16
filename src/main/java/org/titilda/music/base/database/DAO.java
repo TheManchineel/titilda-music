@@ -1,4 +1,4 @@
-package org.titilda.music.base;
+package org.titilda.music.base.database;
 
 import org.titilda.music.base.model.Playlist;
 import org.titilda.music.base.model.PlaylistSong;
@@ -8,6 +8,7 @@ import org.titilda.music.base.model.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class DAO {
@@ -31,28 +32,43 @@ public class DAO {
      * It returns the inserted user object with all fields populated.
      *
      * @param user User object containing the details of the user to be inserted.
-     * @return User object with the inserted user's details, or null if insertion fails.
+     * @return User object with the inserted user's details, or null if insertion
+     *         fails.
      * @throws SQLException If there is an error during the database operation.
      */
-    public User insertUser(User user) throws SQLException {
+    public Optional<User> insertUser(User user) throws SQLException {
         String sql = "INSERT INTO users (username, password_hash, full_name, last_session_invalidation) VALUES (?, ?, ?, ?) RETURNING username, password_hash, full_name, last_session_invalidation";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getPasswordHash());
-            pstmt.setString(3, user.getFullName());
-            pstmt.setTimestamp(4, user.getLastSessionInvalidation());
-            try (ResultSet rs = pstmt.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPasswordHash());
+            ps.setString(3, user.getFullName());
+            ps.setTimestamp(4, user.getLastSessionInvalidation());
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new User(
+                    return Optional.of(new User(
                             rs.getString("username"),
                             rs.getString("password_hash"),
                             rs.getString("full_name"),
-                            rs.getTimestamp("last_session_invalidation")
-                    );
+                            rs.getTimestamp("last_session_invalidation")));
                 }
             }
         }
-        return null;
+        return Optional.empty();
+    }
+
+    public Optional<User> getUserByUsername(String username) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(
+                            new User(rs.getString("username"), rs.getString("password_hash"), rs.getString("full_name"),
+                                    rs.getTimestamp("last_session_invalidation")));
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -60,7 +76,8 @@ public class DAO {
      * This method uses a prepared statement to prevent SQL injection.
      *
      * @param user User object whose songs are to be retrieved.
-     * @return List of Song objects owned by the user, ordered by title and release year.
+     * @return List of Song objects owned by the user, ordered by title and release
+     *         year.
      * @throws SQLException If there is an error during the database operation.
      */
     public List<Song> getSongsOfUser(User user) throws SQLException {
@@ -98,9 +115,10 @@ public class DAO {
      * Retrieves all songs owned by a user that are not in a specific playlist.
      * This method uses a prepared statement to prevent SQL injection.
      *
-     * @param user User object whose songs are to be retrieved.
+     * @param user       User object whose songs are to be retrieved.
      * @param playlistId UUID of the playlist to exclude songs from.
-     * @return List of Song objects owned by the user that are not in the specified playlist, ordered by title.
+     * @return List of Song objects owned by the user that are not in the specified
+     *         playlist, ordered by title.
      * @throws SQLException If there is an error during the database operation.
      */
     public List<Song> getSongsNotInPlaylist(User user, UUID playlistId) throws SQLException {
@@ -119,7 +137,8 @@ public class DAO {
 
     /**
      * Private method to create a list of Song objects from a ResultSet.
-     * This method is used internally to convert the result set into a list of Song objects.
+     * This method is used internally to convert the result set into a list of Song
+     * objects.
      *
      * @param ps PreparedStatement that has been executed.
      * @return List of Song objects created from the result set.
@@ -139,15 +158,15 @@ public class DAO {
                     rs.getString("audio_mime_type"),
                     rs.getInt("release_year"),
                     rs.getString("genre"),
-                    rs.getString("owner")
-            ));
+                    rs.getString("owner")));
         }
         return songs;
     }
 
     /**
      * Private method to create a Song object from a ResultSet.
-     * This method is used internally to convert a single result set row into a Song object.
+     * This method is used internally to convert a single result set row into a Song
+     * object.
      *
      * @param rs ResultSet containing the song data.
      * @return Song object created from the result set.
@@ -164,13 +183,13 @@ public class DAO {
                 rs.getString("audio_mime_type"),
                 rs.getInt("release_year"),
                 rs.getString("genre"),
-                rs.getString("owner")
-        );
+                rs.getString("owner"));
     }
 
     /**
      * Private method to create a Playlist object from a ResultSet.
-     * This method is used internally to convert a single result set row into a Playlist object.
+     * This method is used internally to convert a single result set row into a
+     * Playlist object.
      *
      * @param rs ResultSet containing the playlist data.
      * @return Playlist object created from the result set.
@@ -182,12 +201,12 @@ public class DAO {
                 rs.getString("name"),
                 rs.getString("owner"),
                 rs.getTimestamp("created_at"),
-                rs.getBoolean("is_manually_sorted")
-        );
+                rs.getBoolean("is_manually_sorted"));
     }
 
     public Song insertSong(Song song) throws SQLException {
-        String sql = "INSERT INTO songs (id, title, album, artist, artwork, audio_file, audio_mime_type, release_year, genre, owner) " +
+        String sql = "INSERT INTO songs (id, title, album, artist, artwork, audio_file, audio_mime_type, release_year, genre, owner) "
+                +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -214,7 +233,8 @@ public class DAO {
 
     /**
      * Private method to create a PlaylistSong object from a ResultSet.
-     * This method is used internally to convert a single result set row into a PlaylistSong object.
+     * This method is used internally to convert a single result set row into a
+     * PlaylistSong object.
      *
      * @param rs ResultSet containing the playlist song data.
      * @return PlaylistSong object created from the result set.
@@ -225,16 +245,18 @@ public class DAO {
                 rs.getInt("id"),
                 (UUID) rs.getObject("playlist_id"),
                 (UUID) rs.getObject("song_id"),
-                rs.getInt("position")
-        );
+                rs.getInt("position"));
     }
 
     /**
-     * Inserts a new PlaylistSong into the database. (This represents a song in a playlist.)
+     * Inserts a new PlaylistSong into the database. (This represents a song in a
+     * playlist.)
      * This method uses a prepared statement to prevent SQL injection.
      *
-     * @param songInPlaylist PlaylistSong object containing the details of the song in the playlist.
-     * @return PlaylistSong object with the inserted song's details, including generated ID.
+     * @param songInPlaylist PlaylistSong object containing the details of the song
+     *                       in the playlist.
+     * @return PlaylistSong object with the inserted song's details, including
+     *         generated ID.
      * @throws SQLException If there is an error during the database operation.
      */
     public PlaylistSong insertPlaylistSong(PlaylistSong songInPlaylist) throws SQLException {
@@ -258,9 +280,10 @@ public class DAO {
      * This method uses a prepared statement to prevent SQL injection.
      *
      * @param user User object whose playlists are to be retrieved.
-     * @return ArrayList of Playlist objects owned by the user, ordered by creation date and name.
+     * @return ArrayList of Playlist objects owned by the user, ordered by creation
+     *         date and name.
      */
-    public List<Playlist> getPlaylistsOfOwner(User user) throws SQLException{
+    public List<Playlist> getPlaylistsOfOwner(User user) throws SQLException {
         String sql = "SELECT id, name, owner, created_at, is_manually_sorted FROM playlists WHERE owner = ? ORDER BY created_at DESC, name";
         List<Playlist> playlists = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

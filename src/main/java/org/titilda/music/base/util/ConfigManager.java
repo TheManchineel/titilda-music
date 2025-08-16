@@ -1,4 +1,4 @@
-package org.titilda.music.base.config;
+package org.titilda.music.base.util;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;

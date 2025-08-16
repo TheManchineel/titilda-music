@@ -1,14 +1,18 @@
 package org.titilda.music.ssr;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.titilda.music.base.exceptions.UnauthenticatedException;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Abstract base servlet that provides Thymeleaf template rendering
@@ -16,7 +20,8 @@ import java.util.Map;
  * Subclasses need to implement getTemplatePath() and optionally override
  * prepareTemplateVariables() to provide template-specific data.
  */
-public abstract class BaseServlet extends HttpServlet {
+public abstract sealed class BaseServlet extends HttpServlet permits AuthenticatedBaseServlet, BaseGetServlet {
+    private static final String AUTHENTICATION_COOKIE_NAME = "titilda_music_login_token";
 
     /**
      * Returns the template name (without .html extension) to be rendered.
@@ -34,9 +39,7 @@ public abstract class BaseServlet extends HttpServlet {
      * @param response the HTTP response
      * @return a map of variables to pass to the template
      */
-    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response) {
-        return new HashMap<>();
-    }
+    abstract protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response) throws UnauthenticatedException;
 
     /**
      * Renders the template and writes it to the response.
@@ -45,11 +48,15 @@ public abstract class BaseServlet extends HttpServlet {
     protected final void renderTemplate(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Set response content type
             response.setContentType("text/html;charset=UTF-8");
-
-            // Get template variables
-            Map<String, Object> variables = prepareTemplateVariables(request, response);
+            Map<String, Object> variables;
+            try {
+                 variables = prepareTemplateVariables(request, response);
+            }
+            catch (UnauthenticatedException e) {
+                response.sendRedirect("/login");
+                return;
+            }
 
             // Render template
             String html = TemplateManager.render(getTemplatePath(), variables);
@@ -60,17 +67,24 @@ public abstract class BaseServlet extends HttpServlet {
             out.flush();
 
         } catch (Exception e) {
-            throw new ServletException("Error rendering template: " + getTemplatePath(), e);
+            throw new ServletException("Uncaught error rendering template: " + getTemplatePath(), e);
         }
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        renderTemplate(req, resp);
-    }
+    // UTILITY METHODS:
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        renderTemplate(req, resp);
+    /**
+     * Extracts the value of the auth cookie from the given HTTP request.
+     * If the cookie is not present, an empty Optional is returned.
+     *
+     * @param request the HttpServletRequest from which to extract the cookie
+     * @return an Optional containing the value of the authentication token cookie,
+     *         or an empty Optional if the cookie is not present
+     */
+    protected static Optional<String> getToken(HttpServletRequest request) {
+        return Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[] {}))
+            .filter(cookie -> cookie.getName().equals(AUTHENTICATION_COOKIE_NAME))
+            .findFirst()
+            .map(Cookie::getValue);
     }
 }

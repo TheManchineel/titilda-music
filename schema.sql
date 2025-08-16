@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS Users (
     username VARCHAR(64) PRIMARY KEY CHECK (LENGTH(username) > 0),
     password_hash TEXT,
     full_name TEXT NOT NULL CHECK (LENGTH(full_name) > 0),
-    last_session_invalidation timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+    last_session_invalidation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS Genres (

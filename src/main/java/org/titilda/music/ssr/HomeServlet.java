@@ -3,10 +3,9 @@ package org.titilda.music.ssr;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.titilda.music.base.config.ConfigManager;
+import org.titilda.music.base.model.User;
 import org.titilda.music.base.database.DatabaseManager;
 
-import java.awt.image.DataBuffer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -18,7 +17,7 @@ import java.util.Map;
  * templates.
  */
 @WebServlet(urlPatterns = { "/home" })
-public class HomeServlet extends BaseServlet {
+public class HomeServlet extends AuthenticatedBaseGetServlet {
 
     @Override
     protected String getTemplatePath() {
@@ -26,11 +25,11 @@ public class HomeServlet extends BaseServlet {
     }
 
     @Override
-    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response) {
+    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response, User user) {
         Map<String, Object> variables = new HashMap<>();
 
         // Add some example variables
-        variables.put("message", "Welcome to TiTilda Music! 🎵 " + ConfigManager.getString(ConfigManager.ConfigKey.AUTH_SECRET));
+        variables.put("username", user.getUsername());
         variables.put("currentTime", new java.util.Date());
         variables.put("userAgent", request.getHeader("User-Agent"));
 

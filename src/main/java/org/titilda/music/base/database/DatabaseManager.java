@@ -2,11 +2,10 @@ package org.titilda.music.base.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.titilda.music.base.config.ConfigManager;
-import static org.titilda.music.base.config.ConfigManager.ConfigKey;
+import org.titilda.music.base.util.ConfigManager;
+import static org.titilda.music.base.util.ConfigManager.ConfigKey;
 
 import java.sql.*;
-
 public class DatabaseManager {
 
     private static final HikariConfig config = new HikariConfig();
