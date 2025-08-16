@@ -9,6 +9,8 @@ import java.util.Objects;
 
 /**
  * Model class representing a User in the music application.
+ *
+ * MVC: Minchiate Volute Costantemente
  */
 public class User {
     private String username;
