@@ -1,5 +1,6 @@
 package org.titilda.music.base;
 
+import org.titilda.music.base.model.PlaylistSong;
 import org.titilda.music.base.model.Song;
 import org.titilda.music.base.model.User;
 
@@ -190,6 +191,47 @@ public class DAO {
                     return mapResultSetToSong(rs);
                 } else {
                     throw new SQLException("Failed to insert song, no rows returned");
+                }
+            }
+        }
+    }
+
+    /**
+     * Private method to create a PlaylistSong object from a ResultSet.
+     * This method is used internally to convert a single result set row into a PlaylistSong object.
+     *
+     * @param rs ResultSet containing the playlist song data.
+     * @return PlaylistSong object created from the result set.
+     * @throws SQLException If there is an error during the database operation.
+     */
+    private PlaylistSong mapResultSetToPlaylistSong(ResultSet rs) throws SQLException {
+        return new PlaylistSong(
+                rs.getInt("id"),
+                (UUID) rs.getObject("playlist_id"),
+                (UUID) rs.getObject("song_id"),
+                rs.getInt("position")
+        );
+    }
+
+    /**
+     * Inserts a new PlaylistSong into the database. (This represents a song in a playlist.)
+     * This method uses a prepared statement to prevent SQL injection.
+     *
+     * @param songInPlaylist PlaylistSong object containing the details of the song in the playlist.
+     * @return PlaylistSong object with the inserted song's details, including generated ID.
+     * @throws SQLException If there is an error during the database operation.
+     */
+    public PlaylistSong insertPlaylistSong(PlaylistSong songInPlaylist) throws SQLException {
+        String sql = "INSERT INTO playlistsongs (playlist_id, song_id, position) VALUES (?, ?, ?) RETURNING *";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setObject(1, songInPlaylist.getPlaylistId());
+            ps.setObject(2, songInPlaylist.getSongId());
+            ps.setInt(3, songInPlaylist.getPosition());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPlaylistSong(rs);
+                } else {
+                    throw new SQLException("Failed to insert playlist song, no rows returned");
                 }
             }
         }

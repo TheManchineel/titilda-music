@@ -69,27 +69,5 @@ public class PlaylistSong {
         this.position = position;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PlaylistSong that = (PlaylistSong) o;
-        return Objects.equals(id, that.id);
-    }
 
-    public boolean insert(Connection con) throws SQLException {
-        String sql = "INSERT INTO playlistsongs (playlist_id, song_id, position) VALUES (?, ?, ?) RETURNING id";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setObject(1, playlistId);
-            ps.setObject(2, songId);
-            ps.setInt(3, position);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    this.id = rs.getInt("id");
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }
