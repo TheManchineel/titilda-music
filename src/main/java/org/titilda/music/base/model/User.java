@@ -64,23 +64,4 @@ public class User {
         this.lastSessionInvalidation = lastSessionInvalidation;
     }
 
-    public boolean insert(Connection con) throws SQLException {
-        if (this.username == null)
-            throw new IllegalArgumentException("Username cannot be null");
-        if (this.passwordHash == null)
-            throw new IllegalArgumentException("Password hash cannot be null");
-        if (this.fullName == null)
-            throw new IllegalArgumentException("Full name cannot be null");
-
-        String sql = "INSERT INTO Users (username, password_hash, full_name, last_session_invalidation) VALUES (?, ?, ?, ?) ON CONFLICT (username) DO NOTHING";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, this.getUsername());
-            ps.setString(2, this.getPasswordHash());
-            ps.setString(3, this.getFullName());
-            ps.setTimestamp(4, this.getLastSessionInvalidation() != null ? this.getLastSessionInvalidation() : new Timestamp(System.currentTimeMillis()));
-            return ps.executeUpdate() == 1;
-        }
-    }
-
-
 }
