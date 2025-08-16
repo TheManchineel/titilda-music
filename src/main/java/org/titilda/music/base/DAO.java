@@ -1,13 +1,11 @@
 package org.titilda.music.base;
 
+import org.titilda.music.base.model.Playlist;
 import org.titilda.music.base.model.PlaylistSong;
 import org.titilda.music.base.model.Song;
 import org.titilda.music.base.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -170,6 +168,24 @@ public class DAO {
         );
     }
 
+    /**
+     * Private method to create a Playlist object from a ResultSet.
+     * This method is used internally to convert a single result set row into a Playlist object.
+     *
+     * @param rs ResultSet containing the playlist data.
+     * @return Playlist object created from the result set.
+     * @throws SQLException If there is an error during the database operation.
+     */
+    private Playlist mapResultSetToPlaylist(ResultSet rs) throws SQLException {
+        return new Playlist(
+                (UUID) rs.getObject("id"),
+                rs.getString("name"),
+                rs.getString("owner"),
+                rs.getTimestamp("created_at"),
+                rs.getBoolean("is_manually_sorted")
+        );
+    }
+
     public Song insertSong(Song song) throws SQLException {
         String sql = "INSERT INTO songs (id, title, album, artist, artwork, audio_file, audio_mime_type, release_year, genre, owner) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *";
@@ -232,6 +248,50 @@ public class DAO {
                     return mapResultSetToPlaylistSong(rs);
                 } else {
                     throw new SQLException("Failed to insert playlist song, no rows returned");
+                }
+            }
+        }
+    }
+
+    /**
+     * Retrieves all playlists owned by a specific user.
+     * This method uses a prepared statement to prevent SQL injection.
+     *
+     * @param user User object whose playlists are to be retrieved.
+     * @return ArrayList of Playlist objects owned by the user, ordered by creation date and name.
+     */
+    public List<Playlist> getPlaylistsOfOwner(User user) throws SQLException{
+        String sql = "SELECT id, name, owner, created_at, is_manually_sorted FROM playlists WHERE owner = ? ORDER BY created_at DESC, name";
+        List<Playlist> playlists = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    UUID id = (UUID) rs.getObject("id");
+                    String name = rs.getString("name");
+                    String owner = rs.getString("owner");
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    boolean isManuallySorted = rs.getBoolean("is_manually_sorted");
+                    playlists.add(new Playlist(id, name, owner, createdAt, isManuallySorted));
+                }
+            }
+        }
+        return playlists;
+    }
+
+    public Playlist insertPlaylist(Playlist playlist) throws SQLException {
+        String sql = "INSERT INTO playlists (id, name, owner, created_at, is_manually_sorted) VALUES (?, ?, ?, ?, ?) RETURNING *";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setObject(1, playlist.getId());
+            ps.setString(2, playlist.getName());
+            ps.setString(3, playlist.getOwner());
+            ps.setTimestamp(4, playlist.getCreatedAt());
+            ps.setBoolean(5, playlist.isManuallySorted());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPlaylist(rs);
+                } else {
+                    throw new SQLException("Failed to insert playlist, no rows returned");
                 }
             }
         }
