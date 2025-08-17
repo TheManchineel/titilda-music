@@ -3,56 +3,34 @@ package org.titilda.music.ssr.routes;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.controller.Authentication;
-import org.titilda.music.base.model.User;
+import org.titilda.music.ssr.BasePostWithRedirectServlet;
 import org.titilda.music.ssr.BaseServlet;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Optional;
 
 @WebServlet(urlPatterns = {"/auth/login"})
-public class AuthLoginServlet extends HttpServlet {
+public class AuthLoginServlet extends BasePostWithRedirectServlet {
+    private static final String FAILURE_REDIRECT_URL = "/login?error=invalid_credentials";
+    private static final String SUCCESS_REDIRECT_URL = "/home";
+
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected String processRequestAndRedirect(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         if (username == null || password == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            return FAILURE_REDIRECT_URL;
         }
-        Authentication.validateCredentials(username, password)
-                .ifPresentOrElse(
+        return Authentication.validateCredentials(username, password)
+                .map(
                         user -> {
-                            Date now = new Date();
-                            Cookie tokenCookie = new Cookie(
-                                    BaseServlet.AUTHENTICATION_COOKIE_NAME,
-                                    Authentication.generateToken(
-                                            user,
-                                            now,
-                                            // TODO: make this configurable
-                                            new Date(now.getTime() + 1000L * 3600 * 24 * 30) // 30 days
-                                    )
-                            );
-                            tokenCookie.setHttpOnly(true);
-                            tokenCookie.setPath("/");
-
-                            resp.addCookie(tokenCookie);
-                            try {
-                                resp.sendRedirect("/home");
-                            } catch (IOException e) {
-                                System.out.println("Error sending redirect response: " + e.getMessage());
-                            }
-                        },
-                        () -> {
-                            try {
-                                resp.sendRedirect("/login?error=invalid_credentials");
-                            } catch (IOException e) {
-                                System.out.println("Error sending error response: " + e.getMessage());
-                            }
-                        });
+                            resp.addCookie(generateTokenCookie(Authentication.generateToken(user)));
+                            return SUCCESS_REDIRECT_URL;
+                        }
+                )
+                .orElse(FAILURE_REDIRECT_URL);
     }
 }

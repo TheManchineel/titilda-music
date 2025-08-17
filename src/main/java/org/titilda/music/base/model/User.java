@@ -28,7 +28,7 @@ public class User {
         this.username = username;
         this.passwordHash = passwordHash;
         this.fullName = fullName;
-        this.lastSessionInvalidation = lastSessionInvalidation;
+        this.lastSessionInvalidation = new Timestamp((lastSessionInvalidation.getTime() / 1000L) * 1000L);
     }
 
     // Getters and Setters
@@ -61,7 +61,7 @@ public class User {
     }
 
     public void setLastSessionInvalidation(Timestamp lastSessionInvalidation) {
-        this.lastSessionInvalidation = lastSessionInvalidation;
+        this.lastSessionInvalidation = new Timestamp((lastSessionInvalidation.getTime() / 1000L) * 1000L);
     }
 
 }
