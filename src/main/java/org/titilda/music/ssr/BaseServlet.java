@@ -20,7 +20,7 @@ import java.util.Optional;
  * prepareTemplateVariables() to provide template-specific data.
  */
 public abstract sealed class BaseServlet extends HttpServlet permits BaseAuthenticatedServlet, BaseGetServlet {
-    private static final String AUTHENTICATION_COOKIE_NAME = "titilda_music_login_token";
+    public static final String AUTHENTICATION_COOKIE_NAME = "titilda_music_login_token";
 
     /**
      * Returns the template name (without .html extension) to be rendered.

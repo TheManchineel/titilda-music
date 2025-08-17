@@ -1,8 +1,10 @@
-package org.titilda.music.ssr;
+package org.titilda.music.ssr.routes;
 
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.titilda.music.base.controller.Authentication;
+import org.titilda.music.ssr.BaseGetServlet;
 
 import java.util.Map;
 

@@ -1,10 +1,11 @@
-package org.titilda.music.ssr;
+package org.titilda.music.ssr.routes;
 
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.model.User;
 import org.titilda.music.base.database.DatabaseManager;
+import org.titilda.music.ssr.BaseAuthenticatedGetServlet;
 
 import java.sql.Connection;
 import java.sql.SQLException;

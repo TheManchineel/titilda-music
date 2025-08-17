@@ -23,7 +23,7 @@ public final class Authentication {
         return Password.check(pass, digest).withArgon2();
     }
 
-    private static String hashPassword(String pass) {
+    public static String hashPassword(String pass) {
         return Password.hash(pass).addRandomSalt(16).withArgon2().getResult();
     }
 
@@ -31,8 +31,8 @@ public final class Authentication {
         Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
         return JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(validityEndDate)
                 .withIssuedAt(validityStartDate)
+                .withExpiresAt(validityEndDate)
                 .sign(algorithm);
     }
 
@@ -50,8 +50,21 @@ public final class Authentication {
             catch (SQLException e) {
                 System.out.println("Error getting user by username: " + nickname);
             }
-        } catch (JWTVerificationException _) {
+        } catch (JWTVerificationException e) {
+            System.out.println("Invalid token: " + token + " - " + e.getMessage());
         }
         return Optional.empty();
+    }
+
+    public static Optional<User> validateCredentials(String username, String password) {
+        try {
+            return new DAO(DatabaseManager.getConnection())
+                    .getUserByUsername(username)
+                    .filter(user -> validatePassword(password, user.getPasswordHash()));
+        }
+        catch (SQLException e) {
+            System.out.println("Error getting user by username: " + username);
+            return Optional.empty();
+        }
     }
 }
