@@ -302,6 +302,24 @@ public class DAO {
         return playlists;
     }
 
+    public Optional<Playlist> getPlaylistById(UUID playlistId) throws SQLException {
+        String sql = "SELECT id, name, owner, created_at, is_manually_sorted FROM playlists WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setObject(1, playlistId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new Playlist(
+                            (UUID) rs.getObject("id"),
+                            rs.getString("name"),
+                            rs.getString("owner"),
+                            rs.getTimestamp("created_at"),
+                            rs.getBoolean("is_manually_sorted")));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     public Playlist insertPlaylist(Playlist playlist) throws SQLException {
         String sql = "INSERT INTO playlists (id, name, owner, created_at, is_manually_sorted) VALUES (?, ?, ?, ?, ?) RETURNING *";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
