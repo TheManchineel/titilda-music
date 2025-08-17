@@ -58,9 +58,8 @@ public final class Authentication {
             DecodedJWT decodedJWT = JWT.require(algorithm).build().verify(token);
             Date validityStartDate = decodedJWT.getIssuedAt();
             String nickname = decodedJWT.getSubject();
-            try {
-                return new DAO(DatabaseManager.getConnection())
-                        .getUserByUsername(decodedJWT.getSubject())
+            try (Connection con = DatabaseManager.getConnection()) {
+                return new DAO(con).getUserByUsername(decodedJWT.getSubject())
                         .filter(user -> (!user.getLastSessionInvalidation().after(validityStartDate)));
             }
             catch (SQLException e) {
@@ -73,9 +72,9 @@ public final class Authentication {
     }
 
     public static Optional<User> validateCredentials(String username, String password) {
-        try {
-            return new DAO(DatabaseManager.getConnection())
-                    .getUserByUsername(username)
+
+        try (Connection con = DatabaseManager.getConnection()) {
+            return new DAO(con).getUserByUsername(username)
                     .filter(user -> validatePassword(password, user.getPasswordHash()));
         }
         catch (SQLException e) {
