@@ -5,11 +5,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.model.User;
 import org.titilda.music.base.database.DatabaseManager;
+import org.titilda.music.base.database.DAO;
+import org.titilda.music.base.model.Playlist;
 import org.titilda.music.ssr.BaseAuthenticatedGetServlet;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,9 +37,12 @@ public class HomeServlet extends BaseAuthenticatedGetServlet {
         variables.put("currentTime", new java.util.Date());
         variables.put("userAgent", request.getHeader("User-Agent"));
 
-        try {
-            Connection connection = DatabaseManager.getConnection();
+        try (Connection connection = DatabaseManager.getConnection()) {
             variables.put("dbStatus", "Connected to database: " + connection.getMetaData().getURL());
+
+            DAO dao = new DAO(connection);
+            List<Playlist> playlists = dao.getPlaylistsOfOwner(user);
+            variables.put("playlists", playlists);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
