@@ -49,7 +49,7 @@ public class AuthLoginServlet extends HttpServlet {
                         },
                         () -> {
                             try {
-                                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+                                resp.sendRedirect("/login?error=invalid_credentials");
                             } catch (IOException e) {
                                 System.out.println("Error sending error response: " + e.getMessage());
                             }
