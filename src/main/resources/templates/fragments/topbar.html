@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="topbar">
+    <style>
+        .topbar {
+            background-color: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .topbar-container {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+        }
+
+        .topbar-titilda {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0f6fc;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .topbar-titilda:hover {
+            color: #58a6ff;
+        }
+
+        .topbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-link {
+            color: #f0f6fc;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .topbar-link:hover {
+            background-color: #21262d;
+        }
+
+        /* to do this w/o JS is pure wizardry */
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-trigger {
+            color: #f0f6fc;
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background-color: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        /* they said it couldn't be done, look at him go! */
+        .profile-trigger:hover {
+            background-color: #21262d;
+            border-color: #58a6ff;
+            color: #f0f6fc;
+        }
+
+        /* it's these lil deets that took me a week entire */
+        .dropdown-arrow {
+            border: solid #f0f6fc;
+            border-width: 0 1px 1px 0;
+            display: inline-block;
+            padding: 2px;
+            transform: rotate(45deg);
+            transition: transform 0.2s ease;
+        }
+
+        .profile-dropdown:hover .dropdown-arrow {
+            transform: rotate(-135deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            min-width: 160px;
+            z-index: 1001;
+            margin-top: 4px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+        }
+
+        .profile-dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 8px 16px;
+            color: #f0f6fc;
+            text-decoration: none;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-family: inherit;
+            font-size: inherit;
+            margin: 0;
+            box-sizing: border-box;
+            /* otherwise non-buttons like <a> will have stupid padding */
+        }
+
+        .dropdown-item:hover {
+            background-color: #30363d;
+        }
+
+        .dropdown-item:first-child {
+            border-radius: 6px 6px 0 0;
+        }
+
+        .dropdown-item:last-child {
+            border-radius: 0 0 6px 6px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #30363d;
+            margin: 4px 0;
+        }
+
+        .logout-form {
+            margin: 0;
+        }
+    </style>
+
+    <nav class="topbar">
+        <div class="topbar-container">
+            <a href="/home" class="topbar-titilda">T~Music</a>
+
+            <div class="topbar-nav">
+                <a href="/home" class="topbar-link">Home</a>
+
+                <div class="profile-dropdown">
+                    <!--/*@thymesVar id="user" type="org.titilda.music.base.model.User"*/-->
+                    <div class="profile-trigger">
+                        <span th:text="${user.fullName}">User</span>
+                        <span class="dropdown-arrow"></span>
+                    </div>
+
+                    <div class="dropdown-menu">
+                        <a href="/profile" class="dropdown-item">Profile</a>
+                        <div class="dropdown-divider"></div>
+                        <form method="POST" action="/auth/logout" class="logout-form">
+                            <button type="submit" class="dropdown-item">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+</html>

@@ -25,11 +25,14 @@ public abstract non-sealed class BasePostWithRedirectServlet extends BaseServlet
             String redirectUri = processRequestAndRedirect(req, resp);
             if (redirectUri != null) {
                 resp.sendRedirect(redirectUri);
+                return;
             }
         }
         catch (Exception e) {
             // TODO: use custom exceptions, better message passing & error reporting on exceptions
-            throw new ServletException("Uncaught error processing request: " + req.getRequestURI(), e);
+            System.out.println(e.getMessage());
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
         }
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request");
     }
 }
