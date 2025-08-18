@@ -1,53 +1,239 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Home', ~{::content}, true)}">
 
-<head>
-    <meta charset="UTF-8">
-    <title>TiTilda Music</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div th:fragment="content">
     <style>
-        :root { color-scheme: dark; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif; margin: 0 auto; max-width: 960px; padding: 16px; }
-        h1 { margin-bottom: 0; }
-        h2 { margin-top: 24px; }
+        h1 {
+            margin-bottom: 0;
+        }
 
-        .playlist-header { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: baseline; color: #a0a0a0; font-size: 0.85rem; margin: 8px 0 4px 2rem; padding: 0 12px; }
-        .playlist-list { list-style: none; padding-left: 0; margin-top: 8px; counter-reset: item; }
-        .playlist-list li { position: relative; padding-left: 2rem; margin: 0 0 8px 0; counter-increment: item; }
-        .playlist-list li:last-child { margin-bottom: 0; }
-        .playlist-list li::before { content: counter(item) "."; position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: #a0a0a0; width: 1.5rem; text-align: right; }
-        .playlist-btn { width: 100%; appearance: none; border: 1px solid #30363d; background: #1f2328; padding: 12px; border-radius: 10px; text-align: left; cursor: pointer; transition: transform .06s ease, box-shadow .2s ease, background .2s ease; display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: baseline; text-decoration: none; color: inherit; }
-        .playlist-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.35); background: #24292f; }
-        .playlist-name { display: block; font-weight: 600; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .playlist-date { display: block; font-size: 0.85rem; color: #a0a0a0; white-space: nowrap; justify-self: end; }
+        h2 {
+            margin-top: 24px;
+        }
+
+        .playlist-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            column-gap: 12px;
+            align-items: baseline;
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            margin: 8px 0 4px 2rem;
+            padding: 0 12px;
+        }
+
+        .playlist-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 8px;
+            counter-reset: item;
+        }
+
+        .playlist-list li {
+            position: relative;
+            padding-left: 2rem;
+            margin: 0 0 8px 0;
+            counter-increment: item;
+        }
+
+        .playlist-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .playlist-list li::before {
+            content: counter(item) ".";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0a0a0;
+            width: 1.5rem;
+            text-align: right;
+        }
+
+        .playlist-btn {
+            width: 100%;
+            appearance: none;
+            border: 1px solid #30363d;
+            background: #1f2328;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            column-gap: 12px;
+            align-items: baseline;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .playlist-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, .35);
+            background: #24292f;
+        }
+
+        .playlist-name {
+            display: block;
+            font-weight: 600;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .playlist-date {
+            display: block;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            white-space: nowrap;
+            justify-self: end;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            column-gap: 48px;
+            align-items: start;
+        }
+
+        .create-song-form {
+            background: #1f2328;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #f0f6fc;
+        }
+
+        .form-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 12px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background: #0d1117;
+            color: #f0f6fc;
+            font-size: 0.9rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
+        }
+
+        .form-input[type="file"] {
+            padding: 6px 8px;
+            background: #21262d;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #238636;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s ease;
+        }
+
+        .form-submit:hover {
+            background: #2ea043;
+        }
+
+        .optional-label {
+            color: #a0a0a0;
+            font-weight: 400;
+        }
     </style>
-</head>
 
-<body>
     <h1>TiTilda Music!</h1>
-    <!--/*@thymesVar id="username" type="java.lang.String"*/-->
-    <p th:if="${username}">Welcome back, <strong th:text="${username}">User</strong>.</p>
+    <!--/*@thymesVar id="user" type="org.titilda.music.base.model.User"*/-->
+    <p th:if="${user}">Welcome back, <strong th:text="${user.fullName}">User</strong>.</p>
 
     <!--/*@thymesVar id="playlists" type="java.util.List<org.titilda.music.base.model.Playlist>"*/-->
-    <section>
-        <h2>Your Playlists</h2>
-        <div th:if="${playlists == null or #lists.isEmpty(playlists)}">
-            <p>No playlists yet.</p>
-        </div>
-        <div class="playlist-header" th:if="${playlists != null and !#lists.isEmpty(playlists)}">
-            <span>Title</span>
-            <span>Date created</span>
-        </div>
-        <ol class="playlist-list" th:if="${playlists != null and !#lists.isEmpty(playlists)}">
-            <li th:each="playlist : ${playlists}">
-                <a class="playlist-btn" th:href="'playlist?id=' + ${playlist.id}">
-                    <span class="playlist-name" th:text="${playlist.name}">Playlist name</span>
-                    <span class="playlist-date" th:text="${#dates.format(playlist.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</span>
-                </a>
-            </li>
-        </ol>
-    </section>
-    
-</body>
+    <div class="content-grid">
+        <section>
+            <h2>Your Playlists</h2>
+            <div th:if="${playlists == null or #lists.isEmpty(playlists)}">
+                <p>No playlists yet.</p>
+            </div>
+            <div class="playlist-header" th:if="${playlists != null and !#lists.isEmpty(playlists)}">
+                <span>Title</span>
+                <span>Date created</span>
+            </div>
+            <ol class="playlist-list" th:if="${playlists != null and !#lists.isEmpty(playlists)}">
+                <li th:each="playlist : ${playlists}">
+                    <a class="playlist-btn" th:href="'playlist?id=' + ${playlist.id}">
+                        <span class="playlist-name" th:text="${playlist.name}">Playlist name</span>
+                        <span class="playlist-date"
+                            th:text="${#dates.format(playlist.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</span>
+                    </a>
+                </li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Create Song</h2>
+            <form class="create-song-form" action="/form/create-song" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label" for="songName">Song name</label>
+                    <input class="form-input" type="text" id="songName" name="songName" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="artist">Artist</label>
+                    <input class="form-input" type="text" id="artist" name="artist" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="albumName">Album name</label>
+                    <input class="form-input" type="text" id="albumName" name="albumName" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="albumYear">Album year</label>
+                    <input class="form-input" type="number" id="albumYear" name="albumYear" min="1900" max="2030"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label optional-label" for="artwork">Artwork <span
+                            class="optional-label">(optional)</span></label>
+                    <input class="form-input" type="file" id="artwork" name="artwork" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="songFile">Song file</label>
+                    <input class="form-input" type="file" id="songFile" name="songFile" accept="audio/*" required>
+                </div>
+
+                <div class="form-group">
+                    <button class="form-submit" type="submit">Create Song</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
 
 </html>

@@ -33,7 +33,7 @@ public class HomeServlet extends BaseAuthenticatedGetServlet {
         Map<String, Object> variables = new HashMap<>();
 
         // Add some example variables
-        variables.put("username", user.getUsername());
+        variables.put("user", user);
         variables.put("currentTime", new java.util.Date());
         variables.put("userAgent", request.getHeader("User-Agent"));
 
