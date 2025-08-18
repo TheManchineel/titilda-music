@@ -187,7 +187,7 @@
                     <a class="playlist-btn" th:href="'playlist?id=' + ${playlist.id}">
                         <span class="playlist-name" th:text="${playlist.name}">Playlist name</span>
                         <span class="playlist-date"
-                            th:text="${#dates.format(playlist.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</span>
+                            th:text="${#dates.format(playlist.createdAt, 'd MMM yyyy, HH:mm')}">2025-01-01 12:00</span>
                     </a>
                 </li>
             </ol>
