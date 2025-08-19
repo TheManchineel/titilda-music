@@ -15,15 +15,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 
-@WebServlet(urlPatterns = {"/new-playlist"})
+@WebServlet(urlPatterns = { "/new-playlist" })
 public class NewPlaylistServlet extends BaseAuthenticatedPostWithRedirectServlet {
     private static final String REDIRECT_URL = "/home";
 
     @Override
-    protected String processRequestAndRedirect(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
+    protected String processRequestAndRedirect(HttpServletRequest req, HttpServletResponse resp, User user)
+            throws ServletException, IOException {
         String name = req.getParameter("playlistName");
         if (name == null || name.trim().isEmpty()) {
-            return REDIRECT_URL;
+            return REDIRECT_URL + "?error=playlist_invalid_name";
         }
 
         String[] selectedSongIds = req.getParameterValues("songIds");
@@ -52,12 +53,18 @@ public class NewPlaylistServlet extends BaseAuthenticatedPostWithRedirectServlet
             return "/playlist?id=" + playlist.getId();
         } catch (SQLException e) {
             if (connection != null) {
-                try { connection.rollback(); } catch (SQLException ignored) {}
+                try {
+                    connection.rollback();
+                } catch (SQLException _) {
+                }
             }
-            return REDIRECT_URL;
+            return REDIRECT_URL + "?error=playlist_creation_failed";
         } finally {
             if (connection != null) {
-                try { connection.close(); } catch (SQLException ignored) {}
+                try {
+                    connection.close();
+                } catch (SQLException _) {
+                }
             }
         }
     }

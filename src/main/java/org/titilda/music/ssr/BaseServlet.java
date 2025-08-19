@@ -1,18 +1,10 @@
 package org.titilda.music.ssr;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.titilda.music.base.controller.Authentication;
-import org.titilda.music.base.exceptions.UnauthenticatedException;
-import org.titilda.music.base.model.User;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -21,7 +13,7 @@ import java.util.Optional;
  * Subclasses need to implement getTemplatePath() and optionally override
  * prepareTemplateVariables() to provide template-specific data.
  */
-public abstract sealed class BaseServlet extends HttpServlet permits BaseGetServlet, BasePostWithRedirectServlet {
+public abstract sealed class BaseServlet extends HttpServlet permits BaseGetServlet, BasePostWithRedirectServlet, RootRedirectServlet {
     public static final String AUTHENTICATION_COOKIE_NAME = "titilda_music_login_token";
 
 

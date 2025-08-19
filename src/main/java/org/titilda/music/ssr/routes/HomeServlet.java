@@ -35,6 +35,35 @@ public final class HomeServlet extends BaseAuthenticatedGetServlet {
             User user) {
         Map<String, Object> variables = new HashMap<>();
 
+        // Handle error parameters from form submissions
+        String error = request.getParameter("error");
+        String field = request.getParameter("field");
+        String maxSize = request.getParameter("maxSize");
+
+        if (error != null) {
+            switch (error) {
+                case "invalid_data" -> {
+                    if (field != null && maxSize != null) {
+                        variables.put("error",
+                                "The " + field + " field is too large. Maximum size is " + maxSize + " bytes.");
+                    } else if (field != null) {
+                        variables.put("error", "Invalid data for field: " + field + ". Please check your input.");
+                    } else {
+                        variables.put("error", "Invalid data provided. Please check all fields and try again.");
+                    }
+                }
+                case "playlist_creation_failed" -> {
+                    variables.put("playlistError", "Failed to create playlist. Please try again.");
+                }
+                case "playlist_invalid_name" -> {
+                    variables.put("playlistError", "Playlist name cannot be empty. Please provide a valid name.");
+                }
+                default -> {
+                    variables.put("error", "An unexpected error occurred. Please try again.");
+                }
+            }
+        }
+
         // Add some example variables
         variables.put("user", user);
         variables.put("currentTime", new java.util.Date());

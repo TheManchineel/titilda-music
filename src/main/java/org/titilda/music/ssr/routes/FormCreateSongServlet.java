@@ -18,7 +18,7 @@ import java.io.IOException;
 public final class FormCreateSongServlet extends BaseAuthenticatedPostWithRedirectServlet {
 
     @Override
-    protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
+    protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response, User user) {
         if (!request.getContentType().startsWith("multipart/form-data;")) {
             System.out.println(request.getContentType());
             return "/home?error=invalid_data";
