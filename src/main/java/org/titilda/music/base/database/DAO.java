@@ -223,6 +223,43 @@ public final class DAO {
     }
 
     /**
+     * Adds a song to a playlist by appending it at the next available position.
+     * This method calculates the next position based on the current maximum.
+     *
+     * @param playlistId The playlist to add the song to
+     * @param songId The song to be added
+     * @return true if the song was successfully added, false otherwise
+     * @throws SQLException If any database error occurs
+     */
+    public boolean addSongToPlaylist(UUID playlistId, UUID songId) throws SQLException {
+        int nextPosition = 0;
+        //find the next available position in the playlist
+        //if there are no songs (position is null), start at 0
+        String posSql = "SELECT COALESCE(MAX(position) + 1, 0) AS next_pos FROM playlistsongs WHERE playlist_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(posSql)) {
+            ps.setObject(1, playlistId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    nextPosition = rs.getInt("next_pos");
+                }
+            }
+        }
+
+        String insertSql = "INSERT INTO playlistsongs (playlist_id, song_id, position) VALUES (?, ?, ?) RETURNING *";
+        try (PreparedStatement ps = connection.prepareStatement(insertSql)) {
+            ps.setObject(1, playlistId);
+            ps.setObject(2, songId);
+            ps.setInt(3, nextPosition);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        }
+        throw new SQLException("Failed to add song to playlist");
+    }
+
+    /**
      * Retrieves all playlists owned by a specific user.
      * This method uses a prepared statement to prevent SQL injection.
      *

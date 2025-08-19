@@ -3,10 +3,11 @@ package org.titilda.music.ssr.routes;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.titilda.music.base.model.Song;
+import org.titilda.music.base.model.Genre;
 import org.titilda.music.base.model.User;
 import org.titilda.music.base.database.DatabaseManager;
 import org.titilda.music.base.database.DAO;
-import org.titilda.music.base.model.Genre;
 import org.titilda.music.base.model.Playlist;
 import org.titilda.music.ssr.BaseAuthenticatedGetServlet;
 
@@ -45,6 +46,11 @@ public final class HomeServlet extends BaseAuthenticatedGetServlet {
             DAO dao = new DAO(connection);
             List<Playlist> playlists = dao.getPlaylistsOfOwner(user);
             variables.put("playlists", playlists);
+
+            // Fetch user's songs for the new playlist form
+            List<Song> userSongs = dao.getSongsOfUser(user);
+            variables.put("userSongs", userSongs);
+
             // we already unwrap the genres here as Strings
             List<String> genres = dao.getGenres().stream().map(Genre::getName).toList();
             variables.put("genres", genres);
