@@ -12,7 +12,7 @@ import org.titilda.music.ssr.BasePostWithRedirectServlet;
 import java.io.IOException;
 
 @WebServlet(urlPatterns = { "/auth/signup" })
-public class AuthSignupServlet extends BasePostWithRedirectServlet {
+public final class AuthSignupServlet extends BasePostWithRedirectServlet {
     @Override
     protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

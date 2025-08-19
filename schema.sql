@@ -14,8 +14,6 @@ CREATE TABLE IF NOT EXISTS Songs (
     title TEXT NOT NULL CHECK (LENGTH(title) > 0),
     album TEXT,
     artist TEXT NOT NULL CHECK (LENGTH(artist) > 0),
-    artwork TEXT DEFAULT NULL,
-    audio_file TEXT NOT NULL,
     audio_mime_type TEXT NOT NULL CHECK (audio_mime_type IN ('audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/flac')),
     release_year INTEGER CHECK (release_year > 0),
     genre TEXT REFERENCES Genres(name) ON DELETE SET NULL ON UPDATE CASCADE,

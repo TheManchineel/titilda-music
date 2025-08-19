@@ -11,7 +11,7 @@ import org.titilda.music.ssr.BaseServlet;
 import java.io.IOException;
 
 @WebServlet(urlPatterns = { "/auth/logout" })
-public class AuthLogoutServlet extends BasePostWithRedirectServlet {
+public final class AuthLogoutServlet extends BasePostWithRedirectServlet {
     @Override
     protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

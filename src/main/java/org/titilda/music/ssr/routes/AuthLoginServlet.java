@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Date;
 
 @WebServlet(urlPatterns = {"/auth/login"})
-public class AuthLoginServlet extends BasePostWithRedirectServlet {
+public final class AuthLoginServlet extends BasePostWithRedirectServlet {
     private static final String FAILURE_REDIRECT_URL = "/login?error=invalid_credentials";
     private static final String SUCCESS_REDIRECT_URL = "/home";
 

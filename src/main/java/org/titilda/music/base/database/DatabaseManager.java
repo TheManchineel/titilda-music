@@ -6,7 +6,7 @@ import org.titilda.music.base.util.ConfigManager;
 import static org.titilda.music.base.util.ConfigManager.ConfigKey;
 
 import java.sql.*;
-public class DatabaseManager {
+public final class DatabaseManager {
 
     private static final HikariConfig config = new HikariConfig();
     private static final HikariDataSource ds;

@@ -4,12 +4,13 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Properties;
 
-public class ConfigManager {
+public final class ConfigManager {
     public enum ConfigKey {
         DATABASE_URL("db.url"),
         DATABASE_USER("db.user"),
         DATABASE_PASSWORD("db.password"),
-        AUTH_SECRET("auth.secret");
+        AUTH_SECRET("auth.secret"),
+        STATIC_ASSETS_ROOT("fs.static_root");
 
         private final String key;
 
@@ -21,7 +22,7 @@ public class ConfigManager {
             return key;
         }
     }
-    // File is in /opt/homebrew/Cellar/tomcat@10/10.1.42/libexec/bin (Emanuel's pc)
+    // File is in /opt/homebrew/Cellar/tomcat@10/10.1.44/libexec/bin (on macOS)
     public static final String CONFIG_FILE = "config.properties";
     private static Properties prop;
 

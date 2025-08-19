@@ -11,7 +11,7 @@ import java.util.UUID;
  * Model class representing a PlaylistSong (junction table) in the music application.
  * This represents the relationship between a Playlist and a Song with position information.
  */
-public class PlaylistSong {
+public final class PlaylistSong {
     private Integer id;
     private UUID playlistId;
     private UUID songId;

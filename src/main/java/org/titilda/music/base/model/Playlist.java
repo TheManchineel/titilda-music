@@ -15,7 +15,7 @@ import java.util.UUID;
 /**
  * Model class representing a Playlist in the music application.
  */
-public class Playlist {
+public final class Playlist {
     private UUID id;
     private String name;
     private String owner;

@@ -1,9 +1,6 @@
 package org.titilda.music.base.database;
 
-import org.titilda.music.base.model.Playlist;
-import org.titilda.music.base.model.PlaylistSong;
-import org.titilda.music.base.model.Song;
-import org.titilda.music.base.model.User;
+import org.titilda.music.base.model.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class DAO {
+public final class DAO {
     private Connection connection;
 
     public DAO(Connection con) {
@@ -153,8 +150,6 @@ public class DAO {
                     rs.getString("title"),
                     rs.getString("album"),
                     rs.getString("artist"),
-                    rs.getString("artwork"),
-                    rs.getString("audio_file"),
                     rs.getString("audio_mime_type"),
                     rs.getInt("release_year"),
                     rs.getString("genre"),
@@ -178,8 +173,6 @@ public class DAO {
                 rs.getString("title"),
                 rs.getString("album"),
                 rs.getString("artist"),
-                rs.getString("artwork"),
-                rs.getString("audio_file"),
                 rs.getString("audio_mime_type"),
                 rs.getInt("release_year"),
                 rs.getString("genre"),
@@ -205,21 +198,19 @@ public class DAO {
     }
 
     public Song insertSong(Song song) throws SQLException {
-        String sql = "INSERT INTO songs (id, title, album, artist, artwork, audio_file, audio_mime_type, release_year, genre, owner) "
+        String sql = "INSERT INTO songs (id, title, album, artist, audio_mime_type, release_year, genre, owner) "
                 +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setObject(1, song.getId());
             ps.setString(2, song.getTitle());
             ps.setString(3, song.getAlbum());
             ps.setString(4, song.getArtist());
-            ps.setString(5, song.getArtwork());
-            ps.setString(6, song.getAudioFile());
-            ps.setString(7, song.getAudioMimeType());
-            ps.setObject(8, song.getReleaseYear());
-            ps.setString(9, song.getGenre());
-            ps.setString(10, song.getOwner());
+            ps.setString(5, song.getAudioMimeType());
+            ps.setObject(6, song.getReleaseYear());
+            ps.setString(7, song.getGenre());
+            ps.setString(8, song.getOwner());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -334,6 +325,19 @@ public class DAO {
                 } else {
                     throw new SQLException("Failed to insert playlist, no rows returned");
                 }
+            }
+        }
+    }
+
+    public List<Genre> getGenres() throws SQLException {
+        String sql = "SELECT name FROM genres ORDER BY name";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Genre> genres = new ArrayList<>();
+                while (rs.next()) {
+                    genres.add(new Genre(rs.getString("name")));
+                }
+                return genres;
             }
         }
     }

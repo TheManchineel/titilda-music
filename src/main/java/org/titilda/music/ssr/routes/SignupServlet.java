@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet(urlPatterns = { "/signup" })
-public class SignupServlet extends BaseGetServlet {
+public final class SignupServlet extends BaseGetServlet {
     @Override
     protected String getTemplatePath() {
         return "signup";

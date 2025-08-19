@@ -13,7 +13,7 @@ import java.util.Objects;
  * <p>
  * MVC: Minchiate Volute Costantemente
  */
-public class User {
+public final class User {
     private String username;
     private String passwordHash;
     private String fullName;

@@ -12,13 +12,11 @@ import java.util.UUID;
 /**
  * Model class representing a Song in the music application.
  */
-public class Song {
+public final class Song {
     private UUID id;
     private String title;
     private String album;
     private String artist;
-    private String artwork;
-    private String audioFile;
     private String audioMimeType;
     private Integer releaseYear;
     private String genre;
@@ -28,32 +26,13 @@ public class Song {
     public Song() {
     }
 
-    // Constructor with all fields except id (for new songs)
-    public Song(String title, String album, String artist, String artwork,
-                String audioFile, String audioMimeType, Integer releaseYear,
-                String genre, String owner) {
-        this.id = UUID.randomUUID(); // Auto-generate ID for new songs
-        this.title = title;
-        this.album = album;
-        this.artist = artist;
-        this.artwork = artwork;
-        this.audioFile = audioFile;
-        this.audioMimeType = audioMimeType;
-        this.releaseYear = releaseYear;
-        this.genre = genre;
-        this.owner = owner;
-    }
-
-    // Constructor with all fields including id (for existing songs)
-    public Song(UUID id, String title, String album, String artist, String artwork,
-                String audioFile, String audioMimeType, Integer releaseYear,
+    // Constructor with all fields including id
+    public Song(UUID id, String title, String album, String artist, String audioMimeType, Integer releaseYear,
                 String genre, String owner) {
         this.id = id;
         this.title = title;
         this.album = album;
         this.artist = artist;
-        this.artwork = artwork;
-        this.audioFile = audioFile;
         this.audioMimeType = audioMimeType;
         this.releaseYear = releaseYear;
         this.genre = genre;
@@ -91,22 +70,6 @@ public class Song {
 
     public void setArtist(String artist) {
         this.artist = artist;
-    }
-
-    public String getArtwork() {
-        return artwork;
-    }
-
-    public void setArtwork(String artwork) {
-        this.artwork = artwork;
-    }
-
-    public String getAudioFile() {
-        return audioFile;
-    }
-
-    public void setAudioFile(String audioFile) {
-        this.audioFile = audioFile;
     }
 
     public String getAudioMimeType() {

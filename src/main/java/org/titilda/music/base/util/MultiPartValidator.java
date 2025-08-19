@@ -17,34 +17,52 @@ import java.util.Collection;
 public abstract class MultiPartValidator {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    protected @interface RequiredField {
+    protected @interface MultipartField {
         String name();
+
         String[] contentTypes();
+
+        boolean required() default true;
+
+        long maxSize() default -1L;
     }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    protected @interface OptionalField {
-        String name();
-        String[] contentTypes();
+    public static class InvalidFieldDataException extends Exception {
+        private final Field field;
+
+        public InvalidFieldDataException(Field field, String message) {
+            super(message);
+            this.field = field;
+        }
+
+        public Field getField() {
+            return field;
+        }
     }
 
-    private static boolean hasSameMime(Field field, Part part) {
-        if (field.isAnnotationPresent(RequiredField.class)) {
-            String[] requiredContentTypes = field.getAnnotation(RequiredField.class).contentTypes();
-            if (requiredContentTypes.length == 0) {
-                return part.getContentType() == null;
-            }
-            return Arrays.stream(requiredContentTypes).anyMatch(ct -> ct.equals(part.getContentType()));
+    public static class InvalidFormDataException extends Exception {
+        public InvalidFormDataException(String message) {
+            super(message);
         }
-        else if (field.isAnnotationPresent(OptionalField.class)) {
-            String[] optionalContentTypes = field.getAnnotation(OptionalField.class).contentTypes();
-            if (optionalContentTypes.length == 0) {
-                return part.getContentType() == null;
-            }
-            return Arrays.stream(optionalContentTypes).anyMatch(ct -> ct.equals(part.getContentType()));
+    }
+
+    public static class InvalidDataSizeException extends Exception {
+        private final Field field;
+        private final long maxSize;
+
+        public InvalidDataSizeException(Field field, long maxSize, String message) {
+            super(message);
+            this.field = field;
+            this.maxSize = maxSize;
         }
-        return false;
+
+        public Field getField() {
+            return field;
+        }
+
+        public long getMaxSize() {
+            return maxSize;
+        }
     }
 
     private static void assignField(Field field, Object obj, Part part) {
@@ -56,47 +74,51 @@ public abstract class MultiPartValidator {
             } else if (field.getType().equals(Integer.class)) {
                 field.set(obj, Integer.parseInt(new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8)));
             }
-        }
-        catch (IOException | IllegalAccessException | NumberFormatException e) {
+        } catch (IOException | IllegalAccessException | NumberFormatException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
-    public MultiPartValidator(HttpServletRequest request) {
+    public MultiPartValidator(HttpServletRequest request) throws InvalidFieldDataException, InvalidFormDataException, InvalidDataSizeException {
         if (!request.getContentType().startsWith("multipart/form-data;")) {
-            throw new IllegalArgumentException("Invalid content type.");
+            throw new InvalidFormDataException("Invalid content type");
         }
         try {
             Collection<Part> parts = request.getParts();
             for (Field field : this.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
-                if (field.isAnnotationPresent(RequiredField.class)) {
-                    Part part = parts.stream().filter(p -> p.getName().equals(field.getAnnotation(RequiredField.class).name())).findFirst().orElse(null);
-                    if (part == null || part.getSize() == 0 || !hasSameMime(field, part)) {
-                        throw new IllegalArgumentException("Missing required field: " + field.getName());
-                    }
-                    assignField(field, this, part);
-                }
-                else if (field.isAnnotationPresent(OptionalField.class)) {
-                    Part part = parts.stream().filter(p -> p.getName().equals(field.getAnnotation(OptionalField.class).name())).findFirst().orElse(null);
-                    if (part != null && part.getSize() > 0) {
-                        if (!hasSameMime(field, part)) {
-                            throw new IllegalArgumentException("Invalid content type for field: " + field.getName());
-                        }
-                        assignField(field, this, part);
-                    }
-                    else {
-                        field.set(this, null);
+                MultipartField annotation = field.getAnnotation(MultipartField.class);
+                if (annotation == null) continue;
+
+                Part part = parts.stream().filter(p -> p.getName().equals(annotation.name())).findFirst().orElse(null);
+                if (part == null || part.getSize() == 0) {
+                    if (annotation.required()) {
+                        throw new InvalidFieldDataException(field, "Missing required field in multipart form");
+                    } else {
+                        continue;
                     }
                 }
+
+                if (annotation.maxSize() > 0 && part.getSize() > annotation.maxSize()) {
+                    throw new InvalidDataSizeException(field, annotation.maxSize(), "Field exceeds maximum size");
+                }
+
+                String partContentType = part.getContentType();
+                String[] allowedContentTypes = annotation.contentTypes();
+
+                // Apparently, the content type is null when dealing with raw text fields, which is represented by an
+                // empty array in the @MultipartField annotation. This means that we must check for nullity if the array
+                // is empty, for inclusion if it's not.
+                if ((allowedContentTypes.length == 0 && partContentType != null) ||
+                        (allowedContentTypes.length != 0 && !Arrays.asList(allowedContentTypes).contains(partContentType))) {
+                    throw new InvalidFieldDataException(field, "Field has wrong content type");
+                }
+
+                assignField(field, this, part);
             }
 
-        }
-        catch (IOException | ServletException e ) {
+        } catch (IOException | ServletException e) {
             throw new IllegalArgumentException(e);
-        }
-        catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
         }
     }
 }

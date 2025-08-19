@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * Model class representing a Genre in the music application.
  */
-public class Genre {
+public final class Genre {
     private String name;
 
     // Default constructor

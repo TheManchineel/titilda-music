@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.model.User;
 import org.titilda.music.base.database.DatabaseManager;
 import org.titilda.music.base.database.DAO;
+import org.titilda.music.base.model.Genre;
 import org.titilda.music.base.model.Playlist;
 import org.titilda.music.ssr.BaseAuthenticatedGetServlet;
 
@@ -21,7 +22,7 @@ import java.util.Map;
  * templates.
  */
 @WebServlet(urlPatterns = { "/home" })
-public class HomeServlet extends BaseAuthenticatedGetServlet {
+public final class HomeServlet extends BaseAuthenticatedGetServlet {
 
     @Override
     protected String getTemplatePath() {
@@ -29,7 +30,8 @@ public class HomeServlet extends BaseAuthenticatedGetServlet {
     }
 
     @Override
-    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response, User user) {
+    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response,
+            User user) {
         Map<String, Object> variables = new HashMap<>();
 
         // Add some example variables
@@ -43,6 +45,9 @@ public class HomeServlet extends BaseAuthenticatedGetServlet {
             DAO dao = new DAO(connection);
             List<Playlist> playlists = dao.getPlaylistsOfOwner(user);
             variables.put("playlists", playlists);
+            // we already unwrap the genres here as Strings
+            List<String> genres = dao.getGenres().stream().map(Genre::getName).toList();
+            variables.put("genres", genres);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

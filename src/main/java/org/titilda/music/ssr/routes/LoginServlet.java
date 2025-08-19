@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet(urlPatterns = {"/login"})
-public class LoginServlet extends BaseGetServlet {
+public final class LoginServlet extends BaseGetServlet {
     @Override
     protected String getTemplatePath() {
         return "login";
