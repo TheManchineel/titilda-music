@@ -1,0 +1,111 @@
+package org.titilda.music.ssr;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.titilda.music.base.controller.AssetCrudManager;
+import org.titilda.music.base.controller.Authentication;
+import org.titilda.music.base.database.DAO;
+import org.titilda.music.base.database.DatabaseManager;
+import org.titilda.music.base.model.Song;
+import org.titilda.music.base.model.User;
+import org.titilda.music.base.model.mimetypes.SongMimeType;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.UUID;
+
+@WebServlet(urlPatterns = {"/static/*"})
+public final class StaticAssetsServlet extends BaseServlet {
+    private static void sendNotFound(HttpServletResponse res) throws ServletException, IOException {
+        res.sendRedirect("/error?error=not_found");
+    }
+
+    private static void sendForbidden(HttpServletResponse res) throws ServletException, IOException {
+        res.sendRedirect("/login");
+    }
+
+    private static class StaticAssetAccessNotAllowedException extends Exception {}
+
+
+    private static class StaticAssetNotFoundException extends Exception {}
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String subpath = req.getRequestURI().substring("/static/".length());
+        String[] resComponents = subpath.split("/");
+        try {
+            if (resComponents.length != 2) {
+                throw new StaticAssetNotFoundException();
+            }
+
+
+            String resType = resComponents[0];
+            String[] resNameParts = resComponents[1].split("\\.");
+
+            if (resNameParts.length != 2) {
+                throw new StaticAssetNotFoundException();
+            }
+            String resName = resNameParts[0];
+
+            UUID resId;
+            try {
+                resId = UUID.fromString(resName);
+            } catch (IllegalArgumentException _) {
+                // http://localhost:8080/static/songs/93b1bad4-a39c-479c-b81c-cefde655177f.mp3
+                throw new StaticAssetNotFoundException();
+            }
+
+            String resExt = resNameParts[1];
+            try (Connection connection = DatabaseManager.getConnection()) {
+                User user = getToken(req)
+                        .flatMap(Authentication::validateToken)
+                        .orElseThrow(StaticAssetAccessNotAllowedException::new);
+
+                DAO dao = new DAO(connection);
+
+                switch (resType) {
+                    case "artworks" -> {
+                        if (!resExt.equals("webp"))
+                            throw new StaticAssetNotFoundException();
+                        Song song = dao.getSongById(resId)
+                                .filter(s -> s.getOwner().equals(user.getUsername()))
+                                .orElseThrow(StaticAssetNotFoundException::new);
+                        try {
+                            AssetCrudManager.writeArtworkImageToStream(song, resp.getOutputStream());
+                        }
+                        catch (IOException _) {
+                            throw new StaticAssetNotFoundException();
+                        }
+                    }
+                    case "songs" -> {
+                        SongMimeType mimeType;
+                        try {
+                            mimeType = SongMimeType.fromExtension(resExt);
+                            Song song = dao.getSongById(resId)
+                                    .filter(s -> s.getOwner().equals(user.getUsername()))
+                                    .filter(s -> s.getAudioMimeType().equals(mimeType.getMimeType()))
+                                    .orElseThrow(StaticAssetNotFoundException::new);
+                            resp.setContentType(mimeType.getMimeType());
+                            AssetCrudManager.writeSongToStream(song, resp.getOutputStream());
+                        } catch (IllegalArgumentException _) {
+                            throw new StaticAssetNotFoundException();
+                        }
+                    }
+                    default -> throw new StaticAssetNotFoundException();
+                }
+            }
+            catch (SQLException _) {
+                sendNotFound(resp);
+            }
+        }
+        catch (StaticAssetNotFoundException _) {
+            sendNotFound(resp);
+        }
+        catch (StaticAssetAccessNotAllowedException _) {
+            sendForbidden(resp);
+        }
+    }
+}

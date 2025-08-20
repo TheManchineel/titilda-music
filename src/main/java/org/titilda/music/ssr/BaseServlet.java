@@ -13,7 +13,7 @@ import java.util.Optional;
  * Subclasses need to implement getTemplatePath() and optionally override
  * prepareTemplateVariables() to provide template-specific data.
  */
-public abstract sealed class BaseServlet extends HttpServlet permits BaseGetServlet, BasePostWithRedirectServlet, RootRedirectServlet {
+public abstract sealed class BaseServlet extends HttpServlet permits BaseGetServlet, BasePostWithRedirectServlet, RootRedirectServlet, StaticAssetsServlet {
     public static final String AUTHENTICATION_COOKIE_NAME = "titilda_music_login_token";
 
 

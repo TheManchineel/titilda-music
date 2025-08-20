@@ -1,6 +1,5 @@
 package org.titilda.music.base.controller;
 
-import com.sksamuel.scrimage.ScaleMethod;
 import com.sksamuel.scrimage.webp.WebpWriter;
 import org.titilda.music.base.database.DAO;
 import org.titilda.music.base.database.DatabaseManager;
@@ -13,10 +12,10 @@ import org.titilda.music.base.util.ConfigManager;
 import com.sksamuel.scrimage.ImmutableImage;
 import org.titilda.music.base.util.MultiPartValidator;
 
-import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -32,6 +31,7 @@ public final class AssetCrudManager {
     public static final String assetPath = ConfigManager.getString(ConfigManager.ConfigKey.STATIC_ASSETS_ROOT);
     public static final String SONGS_PATH = assetPath + "/" + SONG_SUBDIR;
     public static final String ARTWORKS_PATH = assetPath + "/" + ARTWORK_SUBDIR;
+    public static final String DEFAULT_ARTWORK_RESOURCE = "assets/default_artwork.webp";
     public static final int MAX_IMAGE_SIZE = 512;
 
     private static void processAndSaveImage(Path path, InputStream is) throws IOException {
@@ -40,6 +40,23 @@ public final class AssetCrudManager {
             image = image.max(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
         }
         image.output(new WebpWriter(), path);
+    }
+
+    public static void writeArtworkImageToStream(Song song, OutputStream os) throws IOException {
+        File artworkFile = new File(ARTWORKS_PATH, song.getId() + ".webp");
+        if (artworkFile.exists()) {
+            Files.copy(artworkFile.toPath(), os);
+        } else
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_ARTWORK_RESOURCE)) {
+            is.transferTo(os);
+        }
+    }
+
+    public static void writeSongToStream(Song song, OutputStream os) throws IOException {
+        File songFile = new File(SONGS_PATH, song.getId() + "." + SongMimeType.fromMimeType(song.getAudioMimeType()).getExtension());
+        if (songFile.exists()) {
+            Files.copy(songFile.toPath(), os);
+        } else throw new IOException("Song file not found");
     }
 
     public static void createSongFromFormData(CreateSongFormData formData, User owner) throws MultiPartValidator.InvalidFormDataException {
