@@ -137,7 +137,7 @@
         }
 
         .top {
-            margin-top: 150px;
+            margin-top: 24px;
         }
 
         .home-link {
@@ -235,6 +235,9 @@
 </head>
 
 <body>
+    <!-- Include topbar for authenticated users -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
     <main class="container" th:with="size=${songs != null ? #lists.size(songs) : 0}">
         <div class="top">
             <a class="home-link" href="/home">&lt; Home</a>

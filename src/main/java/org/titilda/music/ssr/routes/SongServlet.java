@@ -28,6 +28,7 @@ public class SongServlet extends BaseAuthenticatedGetServlet {
     protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response,
             User user) {
         Map<String, Object> variables = new HashMap<>();
+        variables.put("user", user);
 
         String idParam = request.getParameter("id");
         if (idParam == null || idParam.isEmpty()) {
