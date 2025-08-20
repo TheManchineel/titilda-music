@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class DAO {
+    private static final int PLAYLIST_SONG_PAGE_SIZE = 5;
+
     private Connection connection;
 
     public DAO(Connection con) {
@@ -96,14 +98,38 @@ public final class DAO {
      * @return List of Song objects in the specified playlist, ordered by position.
      * @throws SQLException If there is an error during the database operation.
      */
-    public List<Song> getSongsInPlaylist(UUID playlistId) throws SQLException {
+    public List<Song> getSongsInPlaylist(UUID playlistId, int page) throws SQLException {
         String sql = "SELECT s.* FROM songs s " +
                 "JOIN playlistsongs ps ON s.id = ps.song_id " +
-                "WHERE ps.playlist_id = ? ORDER BY ps.position";
+                "WHERE ps.playlist_id = ? ORDER BY ps.position " +
+                "LIMIT ? OFFSET ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setObject(1, playlistId);
+            ps.setInt(2, PLAYLIST_SONG_PAGE_SIZE);
+            ps.setInt(3, page * PLAYLIST_SONG_PAGE_SIZE);
             return mapResultSetToSongList(ps);
+        }
+    }
+
+    /**
+     * Calculates the total number of pages required to display all songs in a playlist,
+     * given a fixed page size.
+     *
+     * @param playlistId UUID of the playlist whose song page count is to be calculated.
+     * @return The number of pages required to display all songs in the specified playlist.
+     * @throws SQLException If there is an error during the database operation.
+     */
+    public int getSongPageCount(UUID playlistId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM playlistsongs WHERE playlist_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setObject(1, playlistId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return (int) Math.ceil((double) rs.getInt(1) / PLAYLIST_SONG_PAGE_SIZE);
+                }
+                return 0;
+            }
         }
     }
 
@@ -118,6 +144,7 @@ public final class DAO {
      * @throws SQLException If there is an error during the database operation.
      */
     public List<Song> getSongsNotInPlaylist(User user, UUID playlistId) throws SQLException {
+        // TODO: replace owner passing with subquery
         if (user == null || user.getUsername() == null) {
             throw new IllegalArgumentException("User cannot be null and must have a valid username");
         }

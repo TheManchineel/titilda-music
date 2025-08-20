@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.database.DAO;
 import org.titilda.music.base.database.DatabaseManager;
+import org.titilda.music.base.exceptions.InternalErrorException;
 import org.titilda.music.base.model.Playlist;
 import org.titilda.music.base.model.Song;
 import org.titilda.music.base.model.User;
@@ -20,12 +21,12 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
 
     @Override
     protected String getTemplatePath() {
-        return "playlist"; // templates/playlist.html
+        return "playlist";
     }
 
     @Override
     protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response,
-            User user) {
+            User user) throws InternalErrorException {
         Map<String, Object> variables = new HashMap<>();
         variables.put("user", user);
 
@@ -39,7 +40,7 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
         UUID playlistId;
         try {
             playlistId = UUID.fromString(idParam);
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException _) {
             // invalid UUID format
             variables.put("error", "Playlist not found");
             return variables;
@@ -53,31 +54,28 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
                 return variables;
             }
 
+            int page = 0;
+            String off = request.getParameter("page");
+            if (off != null) {
+                try {
+                    page = Integer.parseInt(off);
+                } catch (NumberFormatException _) {}
+            }
+
             Playlist playlist = playlistOpt.get();
             variables.put("playlist", playlist);
-            List<Song> songs = dao.getSongsInPlaylist(playlistId);
+            List<Song> songs = dao.getSongsInPlaylist(playlistId, page);
             variables.put("songs", songs);
 
             // Get songs not in this playlist for the add songs form
             List<Song> songsNotInPlaylist = dao.getSongsNotInPlaylist(user, playlistId);
             variables.put("songsNotInPlaylist", songsNotInPlaylist);
 
-            // offset handling
-            int offset = 0;
-            String off = request.getParameter("offset");
-            if (off != null) {
-                try {
-                    offset = Integer.parseInt(off);
-                } catch (NumberFormatException _) {
-                }
-            }
-            if (offset > Math.max(0, songs.size() - 5))
-                offset = Math.max(0, songs.size() - 5);
-            if (offset < 0)
-                offset = 0;
-            variables.put("offset", offset);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            variables.put("page", page);
+            variables.put("pageCount", dao.getSongPageCount(playlistId));
+
+        } catch (SQLException _) {
+            throw new InternalErrorException("Internal server error");
         }
 
         return variables;
