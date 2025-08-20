@@ -231,19 +231,20 @@ public final class DAO {
      * @throws SQLException If any database error occurs
      */
     public boolean addSongToPlaylist(UUID playlistId, UUID songId) throws SQLException {
-        int nextPosition = 0;
-        // find the next available position in the playlist
-        // if there are no songs (position is null), start at 0
-        PreparedStatement checkPs = connection.prepareStatement("SELECT * FROM playlistsongs WHERE playlist_id = ? AND song_id = ? LIMIT 1");
-        checkPs.setObject(1, playlistId);
-        checkPs.setObject(2, songId);
-        try (ResultSet rs = checkPs.executeQuery()) {
-            if (rs.isBeforeFirst()) {
-                // there already is a song
-                return false;
+        try (PreparedStatement checkPs = connection.prepareStatement("SELECT song_id FROM playlistsongs WHERE playlist_id = ? AND song_id = ? LIMIT 1")) {
+            checkPs.setObject(1, playlistId);
+            checkPs.setObject(2, songId);
+            try (ResultSet rs = checkPs.executeQuery()) {
+                if (rs.isBeforeFirst()) {
+                    // there already is a song
+                    return false;
+                }
             }
         }
 
+        int nextPosition = 0;
+        // find the next available position in the playlist
+        // if there are no songs (position is null), start at 0
         String posSql = "SELECT COALESCE(MAX(position) + 1, 0) AS next_pos FROM playlistsongs WHERE playlist_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(posSql)) {
             ps.setObject(1, playlistId);

@@ -39,7 +39,7 @@ public final class ConfigManager {
                     System.err.println("Missing configuration key: " + key.getKey());
                 }
             }
-        } catch (java.io.IOException ex) {
+        } catch (java.io.IOException _) {
             System.out.println(System.getProperty("user.dir"));
             System.err.println("Error loading configuration file: " + CONFIG_FILE);
         }
@@ -57,7 +57,7 @@ public final class ConfigManager {
         try {
             return Integer.parseInt(value);
         }
-        catch (NumberFormatException e) {
+        catch (NumberFormatException _) {
             System.err.println("Invalid integer value for key: " + key + " - " + value);
             return 0;
         }

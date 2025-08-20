@@ -11,21 +11,9 @@ public final class DatabaseManager {
     private static final HikariConfig config = new HikariConfig();
     private static final HikariDataSource ds;
 
-
-    /*
-     * Static block to load the PostgreSQL JDBC driver.
-     * This is APPARENTLY necessary to ensure the driver is registered before any connection attempts. (why??) TODO: understand
-     */
-    static {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("PostgreSQL JDBC Driver not found. Include it in your library path.", e);
-        }
-    }
-
     static {
         config.setJdbcUrl(ConfigManager.getString(ConfigKey.DATABASE_URL));
+        config.setDriverClassName("org.postgresql.Driver");
         config.setUsername(ConfigManager.getString(ConfigKey.DATABASE_USER));
         config.setPassword(ConfigManager.getString(ConfigKey.DATABASE_PASSWORD));
         config.addDataSourceProperty("cachePrepStmts", "true");

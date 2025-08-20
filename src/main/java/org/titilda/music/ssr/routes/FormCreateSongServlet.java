@@ -1,6 +1,5 @@
 package org.titilda.music.ssr.routes;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,8 +10,6 @@ import org.titilda.music.base.model.forms.CreateSongFormData;
 import org.titilda.music.base.util.MultiPartValidator;
 import org.titilda.music.ssr.BaseAuthenticatedPostWithRedirectServlet;
 
-import java.io.IOException;
-
 @WebServlet(urlPatterns = { "/form/create-song" })
 @MultipartConfig
 public final class FormCreateSongServlet extends BaseAuthenticatedPostWithRedirectServlet {
@@ -20,7 +17,6 @@ public final class FormCreateSongServlet extends BaseAuthenticatedPostWithRedire
     @Override
     protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response, User user) {
         if (!request.getContentType().startsWith("multipart/form-data;")) {
-            System.out.println(request.getContentType());
             return "/home?error=invalid_data";
         }
 

@@ -6,7 +6,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.ssr.BasePostWithRedirectServlet;
-import org.titilda.music.ssr.BaseServlet;
 
 import java.io.IOException;
 

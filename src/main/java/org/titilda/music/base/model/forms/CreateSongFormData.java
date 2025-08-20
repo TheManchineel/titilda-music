@@ -24,7 +24,7 @@ public class CreateSongFormData extends MultiPartValidator {
     // 4 MiB
     public Part artwork;
 
-    // FIXME: unfortunately I've found no way to grab the allowed MIME types from the appropriate enum :/
+    // TODO: unfortunately I've found no way to grab the allowed MIME types from the appropriate enum :/
     @MultipartField(name = "songFile", contentTypes = {"audio/mpeg", "audio/wav", "audio/ogg", "audio/flac"}, maxSize = 1024L * 1024L * 50L)
     // 50 MiB
     public Part songFile;

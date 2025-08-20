@@ -20,19 +20,23 @@ public abstract non-sealed class BasePostWithRedirectServlet extends BaseServlet
     abstract protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             String redirectUri = processRequestAndRedirect(req, resp);
             if (redirectUri != null) {
                 resp.sendRedirect(redirectUri);
-                return;
             }
         }
-        catch (Exception e) {
-            // TODO: use custom exceptions, better message passing & error reporting on exceptions
-            System.out.println(e.getMessage());
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
+        catch (ServletException _) {
+            resp.sendRedirect("/error?error=bad_request");
         }
-        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request");
+        catch (IOException _) {
+            try {
+                resp.sendRedirect("/error");
+            }
+            catch (IOException _) {
+                // what can go wrong will go wrong
+            }
+        }
     }
 }

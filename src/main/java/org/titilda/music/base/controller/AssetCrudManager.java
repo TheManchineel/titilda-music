@@ -28,9 +28,9 @@ public final class AssetCrudManager {
     private static final String SONG_SUBDIR = "songs";
     private static final String ARTWORK_SUBDIR = "artworks";
 
-    public static final String assetPath = ConfigManager.getString(ConfigManager.ConfigKey.STATIC_ASSETS_ROOT);
-    public static final String SONGS_PATH = assetPath + "/" + SONG_SUBDIR;
-    public static final String ARTWORKS_PATH = assetPath + "/" + ARTWORK_SUBDIR;
+    public static final String ASSET_PATH = ConfigManager.getString(ConfigManager.ConfigKey.STATIC_ASSETS_ROOT);
+    public static final String SONGS_PATH = ASSET_PATH + "/" + SONG_SUBDIR;
+    public static final String ARTWORKS_PATH = ASSET_PATH + "/" + ARTWORK_SUBDIR;
     public static final String DEFAULT_ARTWORK_RESOURCE = "assets/default_artwork.webp";
     public static final int MAX_IMAGE_SIZE = 512;
 
@@ -47,9 +47,9 @@ public final class AssetCrudManager {
         if (artworkFile.exists()) {
             Files.copy(artworkFile.toPath(), os);
         } else
-        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_ARTWORK_RESOURCE)) {
-            is.transferTo(os);
-        }
+            try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_ARTWORK_RESOURCE)) {
+                is.transferTo(os);
+            }
     }
 
     public static void writeSongToStream(Song song, OutputStream os) throws IOException {
@@ -101,14 +101,18 @@ public final class AssetCrudManager {
                 try {
                     Files.deleteIfExists(songPath);
                 }
-                catch (Exception _) {}
+                catch (IOException _) {
+                    // at least we tried
+                }
             }
 
             if (artworkPath != null) {
                 try {
                     Files.deleteIfExists(artworkPath);
                 }
-                catch (Exception _) {}
+                catch (IOException _) {
+                    // at least we tried
+                }
             }
             e.printStackTrace();
             throw new MultiPartValidator.InvalidFormDataException(e.getMessage());

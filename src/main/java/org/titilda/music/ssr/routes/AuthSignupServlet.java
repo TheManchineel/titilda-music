@@ -5,8 +5,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.controller.Authentication;
-import org.titilda.music.base.model.User;
-import org.titilda.music.ssr.BaseAuthenticatedPostWithRedirectServlet;
 import org.titilda.music.ssr.BasePostWithRedirectServlet;
 
 import java.io.IOException;
@@ -27,11 +25,9 @@ public final class AuthSignupServlet extends BasePostWithRedirectServlet {
             response.addCookie(generateTokenCookie(newUserToken));
             return "/home";
         }
-        // TODO: create an abstract exception, store the failure reason querystring as a
-        // getter, reduce duplication
-        catch (Authentication.UserCreationFailureException e) {
+        catch (Authentication.UserCreationFailureException _) {
             return "/signup?error=failed_to_register";
-        } catch (Authentication.UserAlreadyExistsException e) {
+        } catch (Authentication.UserAlreadyExistsException _) {
             return "/signup?error=user_already_exists";
         }
     }

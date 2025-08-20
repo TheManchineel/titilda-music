@@ -1,8 +1,10 @@
 package org.titilda.music.ssr.routes;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.titilda.music.base.exceptions.InternalErrorException;
 import org.titilda.music.base.model.Song;
 import org.titilda.music.base.model.Genre;
 import org.titilda.music.base.model.User;
@@ -32,7 +34,7 @@ public final class HomeServlet extends BaseAuthenticatedGetServlet {
 
     @Override
     protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response,
-            User user) {
+            User user) throws InternalErrorException {
         Map<String, Object> variables = new HashMap<>();
 
         // Handle error parameters from form submissions
@@ -52,15 +54,9 @@ public final class HomeServlet extends BaseAuthenticatedGetServlet {
                         variables.put("error", "Invalid data provided. Please check all fields and try again.");
                     }
                 }
-                case "playlist_creation_failed" -> {
-                    variables.put("playlistError", "Failed to create playlist. Please try again.");
-                }
-                case "playlist_invalid_name" -> {
-                    variables.put("playlistError", "Playlist name cannot be empty. Please provide a valid name.");
-                }
-                default -> {
-                    variables.put("error", "An unexpected error occurred. Please try again.");
-                }
+                case "playlist_creation_failed" -> variables.put("playlistError", "Failed to create playlist. Please try again.");
+                case "playlist_invalid_name" -> variables.put("playlistError", "Playlist name cannot be empty. Please provide a valid name.");
+                default -> variables.put("error", "An unexpected error occurred. Please try again.");
             }
         }
 
@@ -83,8 +79,8 @@ public final class HomeServlet extends BaseAuthenticatedGetServlet {
             // we already unwrap the genres here as Strings
             List<String> genres = dao.getGenres().stream().map(Genre::getName).toList();
             variables.put("genres", genres);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException _) {
+            throw new InternalErrorException("Failed to connect to database");
         }
 
         // You can add any data your template needs

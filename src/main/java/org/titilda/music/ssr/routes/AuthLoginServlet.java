@@ -2,15 +2,12 @@ package org.titilda.music.ssr.routes;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.controller.Authentication;
 import org.titilda.music.ssr.BasePostWithRedirectServlet;
-import org.titilda.music.ssr.BaseServlet;
 
 import java.io.IOException;
-import java.util.Date;
 
 @WebServlet(urlPatterns = {"/auth/login"})
 public final class AuthLoginServlet extends BasePostWithRedirectServlet {

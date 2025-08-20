@@ -62,11 +62,11 @@ public final class Authentication {
                 return new DAO(con).getUserByUsername(decodedJWT.getSubject())
                         .filter(user -> (!user.getLastSessionInvalidation().after(validityStartDate)));
             }
-            catch (SQLException e) {
-                System.out.println("Error getting user by username: " + nickname);
+            catch (SQLException _) {
+                // TODO: add db error logging
             }
-        } catch (JWTVerificationException e) {
-            System.out.println("Invalid token: " + token + " - " + e.getMessage());
+        } catch (JWTVerificationException _) {
+            // invalid signature/claims
         }
         return Optional.empty();
     }
@@ -77,8 +77,8 @@ public final class Authentication {
             return new DAO(con).getUserByUsername(username)
                     .filter(user -> validatePassword(password, user.getPasswordHash()));
         }
-        catch (SQLException e) {
-            System.out.println("Error getting user by username: " + username);
+        catch (SQLException _) {
+            // TODO: add db error logging
             return Optional.empty();
         }
     }
@@ -95,7 +95,7 @@ public final class Authentication {
             dao.insertUser(newUser);
             return generateToken(newUser);
         }
-        catch (SQLException e) {
+        catch (SQLException _) {
             throw new UserCreationFailureException();
         }
     }
