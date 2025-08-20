@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div
+    th:fragment="songSelectionForm(formAction, formTitle, buttonText, songs, errorVar, showPlaylistName, hiddenFieldName, hiddenFieldValue)">
+    <section>
+        <h2 th:text="${formTitle}">Form Title</h2>
+        <form class="create-song-form" th:action="${formAction}" method="post">
+            <input th:if="${hiddenFieldName != null and hiddenFieldValue != null}" type="hidden"
+                th:name="${hiddenFieldName}" th:value="${hiddenFieldValue}">
+
+            <div th:if="${errorVar != null and __${errorVar}__}" class="error-message">
+                <p th:text="*{__${errorVar}__}">Error</p>
+            </div>
+
+            <div th:if="${showPlaylistName == null or showPlaylistName}" class="form-group">
+                <label class="form-label" for="playlistName">Playlist name</label>
+                <input class="form-input" type="text" id="playlistName" name="playlistName" required>
+            </div>
+
+            <div class="form-group">
+                <span class="form-label">Songs</span>
+                <div
+                    style="max-height: 220px; overflow: auto; padding: 8px; border: 1px solid #30363d; border-radius: 6px; background: #0d1117;">
+                    <div th:if="${songs == null or #lists.isEmpty(songs)}">
+                        <p class="optional-label" style="margin: 0;">No songs available.</p>
+                    </div>
+                    <div th:each="s : ${songs}" style="margin: 6px 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="songIds" th:value="${s.id}">
+                            <span th:text="${s.title + ' — ' + s.artist}">Song title — Artist</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button class="form-submit" type="submit" th:text="${buttonText}">Submit</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+</html>

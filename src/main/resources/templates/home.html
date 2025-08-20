@@ -264,41 +264,9 @@
             </form>
         </section>
 
-        <section>
-            <h2>Create Playlist</h2>
-            <form class="create-song-form" action="/new-playlist" method="post">
-                <!--/*@thymesVar id="playlistError" type="java.lang.String"*/-->
-                <div th:if="${playlistError}" class="error-message">
-                    <p th:text="${playlistError}">Error</p>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="playlistName">Playlist name</label>
-                    <input class="form-input" type="text" id="playlistName" name="playlistName" required>
-                </div>
-
-                <div class="form-group">
-                    <span class="form-label">Songs</span>
-                    <div
-                        style="max-height: 220px; overflow: auto; padding: 8px; border: 1px solid #30363d; border-radius: 6px; background: #0d1117;">
-                        <div th:if="${userSongs == null or #lists.isEmpty(userSongs)}">
-                            <p class="optional-label" style="margin: 0;">No songs available.</p>
-                        </div>
-                        <div th:each="s : ${userSongs}" style="margin: 6px 0;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" name="songIds" th:value="${s.id}">
-                                <span th:text="${s.title + ' — ' + s.artist}">Song title — Artist</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="form-group">
-                    <button class="form-submit" type="submit">Create Playlist</button>
-                </div>
-            </form>
-        </section>
+        <div
+            th:replace="~{fragments/song-selection-form :: songSelectionForm('/form/create-playlist', 'Create Playlist', 'Create Playlist', ${userSongs}, 'playlistError', true, null, null)}">
+        </div>
     </div>
 </div>
 

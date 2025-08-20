@@ -26,7 +26,7 @@ public final class AssetCrudManager {
     private AssetCrudManager() {}
 
     private static final String SONG_SUBDIR = "songs";
-    private static final String ARTWORK_SUBDIR = "artwork";
+    private static final String ARTWORK_SUBDIR = "artworks";
 
     public static final String assetPath = ConfigManager.getString(ConfigManager.ConfigKey.STATIC_ASSETS_ROOT);
     public static final String SONGS_PATH = assetPath + "/" + SONG_SUBDIR;

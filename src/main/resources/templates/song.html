@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Song • TiTilda Music</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            text-align: center;
+            background: #0d1117;
+            color: #f0f6fc;
+        }
+
+        h1 {
+            margin-bottom: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .meta {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .top {
+            margin-top: 150px;
+        }
+
+        .home-link {
+            color: #a0a0a0;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .home-link:hover {
+            text-decoration: underline;
+            color: #d0d7de;
+        }
+
+        .song-content {
+            max-width: 600px;
+            margin: 32px auto;
+        }
+
+        .artwork-container {
+            margin-bottom: 32px;
+        }
+
+        .artwork {
+            width: 300px;
+            height: 300px;
+            background: #14181d;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .artwork img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .audio-player {
+            margin: 24px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            height: 40px;
+        }
+
+        .song-details {
+            background: #1f2328;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 0;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+
+        .song-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .song-details th,
+        .song-details td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .song-details th {
+            background: #161b22;
+            font-weight: 600;
+            color: #f0f6fc;
+            width: 30%;
+        }
+
+        .song-details td {
+            background: #1f2328;
+            color: #d0d7de;
+        }
+
+        .song-details tr:last-child th,
+        .song-details tr:last-child td {
+            border-bottom: none;
+        }
+
+        .error-message {
+            background: #2d1516;
+            border: 1px solid #d1242f;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 24px 0;
+            color: #f85149;
+            font-size: 0.9rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .error-message p {
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .artwork {
+                width: 250px;
+                height: 250px;
+            }
+
+            .song-content {
+                max-width: 90%;
+            }
+
+            .song-details th {
+                width: 35%;
+            }
+
+            .song-details th,
+            .song-details td {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <div class="top">
+            <a class="home-link" href="/home">&lt; Home</a>
+        </div>
+
+        <div th:if="${error}" class="error-message">
+            <p th:text="${error}">Song not found</p>
+        </div>
+
+        <div th:if="${song}" class="song-content">
+            <h1 th:text="${song.title}">Song Title</h1>
+            <p class="meta" th:text="${song.artist}">Artist Name</p>
+
+            <div class="artwork-container">
+                <div class="artwork">
+                    <img th:src="${song.artworkUrl}" th:alt="${song.title + ' artwork'}" />
+                </div>
+            </div>
+
+            <div class="audio-player">
+                <audio controls autoplay>
+                    <source th:src="${song.audioUrl}" th:type="${song.audioMimeType}">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+
+            <div class="song-details">
+                <table>
+                    <tr>
+                        <th>Title</th>
+                        <td th:text="${song.title}">Song Title</td>
+                    </tr>
+                    <tr>
+                        <th>Artist</th>
+                        <td th:text="${song.artist}">Artist Name</td>
+                    </tr>
+                    <tr>
+                        <th>Album</th>
+                        <td>
+                            <span th:text="${song.album}">Album Name</span>
+                            <span th:if="${song.releaseYear}" th:text="'(' + ${song.releaseYear} + ')'"> (2024)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Genre</th>
+                        <td th:text="${song.genre}">Genre</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -46,4 +46,5 @@ INSERT INTO Genres (name) VALUES
 ('Country'),
 ('Reggae'),
 ('Blues'),
-('Folk');
+('Folk'),
+('R&B');

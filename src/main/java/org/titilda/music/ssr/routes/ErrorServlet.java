@@ -27,6 +27,10 @@ public class ErrorServlet extends BaseGetServlet {
                 response.setStatus(404);
                 yield "Page not found.";
             }
+            case "internal_server_error" -> {
+                response.setStatus(500);
+                yield "Internal server error.";
+            }
             case null, default -> "Something went wrong.";
         };
 

@@ -15,57 +15,45 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 
-@WebServlet(urlPatterns = { "/new-playlist" })
-public class NewPlaylistServlet extends BaseAuthenticatedPostWithRedirectServlet {
-    private static final String REDIRECT_URL = "/home";
+@WebServlet(urlPatterns = { "/form/create-playlist" })
+public class FormCreatePlaylistServlet extends BaseAuthenticatedPostWithRedirectServlet {
+    private static final String FAILURE_URL = "/home";
 
     @Override
     protected String processRequestAndRedirect(HttpServletRequest req, HttpServletResponse resp, User user)
             throws ServletException, IOException {
         String name = req.getParameter("playlistName");
         if (name == null || name.trim().isEmpty()) {
-            return REDIRECT_URL + "?error=playlist_invalid_name";
+            return FAILURE_URL + "?error=playlist_invalid_name";
         }
 
         String[] selectedSongIds = req.getParameterValues("songIds");
 
-        Connection connection = null;
-        try {
-            connection = DatabaseManager.getConnection();
+        if (selectedSongIds == null) {
+            selectedSongIds = new String[0];
+        }
+
+        try (Connection connection = DatabaseManager.getConnection() ){
             connection.setAutoCommit(false);
             DAO dao = new DAO(connection);
 
             Playlist playlist = new Playlist(name.trim(), user.getUsername(), false);
             playlist = dao.insertPlaylist(playlist);
 
-            if (selectedSongIds != null) {
-                for (String idStr : selectedSongIds) {
-                    try {
-                        UUID songId = UUID.fromString(idStr);
-                        dao.addSongToPlaylist(playlist.getId(), songId);
-                    } catch (IllegalArgumentException _) {
-                        // skip invalid UUIDs silently
-                    }
+            for (String idStr : selectedSongIds) {
+                try {
+                    UUID songId = UUID.fromString(idStr);
+                    dao.addSongToPlaylist(playlist.getId(), songId);
+                } catch (IllegalArgumentException _) {
+                    // skip invalid UUIDs silently
                 }
             }
 
             connection.commit();
             return "/playlist?id=" + playlist.getId();
-        } catch (SQLException e) {
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException _) {
-                }
-            }
-            return REDIRECT_URL + "?error=playlist_creation_failed";
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException _) {
-                }
-            }
+        }
+        catch (SQLException _) {
+            return FAILURE_URL + "?error=playlist_creation_failed";
         }
     }
 }

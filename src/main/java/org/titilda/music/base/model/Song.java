@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.titilda.music.base.model.mimetypes.SongMimeType;
+
 /**
  * Model class representing a Song in the music application.
  */
@@ -28,7 +30,7 @@ public final class Song {
 
     // Constructor with all fields including id
     public Song(UUID id, String title, String album, String artist, String audioMimeType, Integer releaseYear,
-                String genre, String owner) {
+            String genre, String owner) {
         this.id = id;
         this.title = title;
         this.album = album;
@@ -104,4 +106,11 @@ public final class Song {
         this.owner = owner;
     }
 
+    public String getArtworkUrl() {
+        return "/static/artworks/" + id + ".webp";
+    }
+
+    public String getAudioUrl() {
+        return "/static/songs/" + id + "." + SongMimeType.fromMimeType(audioMimeType).getExtension();
+    }
 }

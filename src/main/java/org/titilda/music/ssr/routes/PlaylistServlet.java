@@ -24,7 +24,8 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
     }
 
     @Override
-    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response, User user) {
+    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response,
+            User user) {
         Map<String, Object> variables = new HashMap<>();
 
         String idParam = request.getParameter("id");
@@ -42,7 +43,7 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
             variables.put("error", "Playlist not found");
             return variables;
         }
-        
+
         try (Connection connection = DatabaseManager.getConnection()) {
             DAO dao = new DAO(connection);
             Optional<Playlist> playlistOpt = dao.getPlaylistById(playlistId);
@@ -56,14 +57,23 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
             List<Song> songs = dao.getSongsInPlaylist(playlistId);
             variables.put("songs", songs);
 
+            // Get songs not in this playlist for the add songs form
+            List<Song> songsNotInPlaylist = dao.getSongsNotInPlaylist(user, playlistId);
+            variables.put("songsNotInPlaylist", songsNotInPlaylist);
+
             // offset handling
             int offset = 0;
             String off = request.getParameter("offset");
             if (off != null) {
-                try { offset = Integer.parseInt(off); } catch (NumberFormatException _) {}
+                try {
+                    offset = Integer.parseInt(off);
+                } catch (NumberFormatException _) {
+                }
             }
-            if (offset > Math.max(0, songs.size() - 5)) offset = Math.max(0, songs.size() - 5);
-            if (offset < 0) offset = 0;
+            if (offset > Math.max(0, songs.size() - 5))
+                offset = Math.max(0, songs.size() - 5);
+            if (offset < 0)
+                offset = 0;
             variables.put("offset", offset);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -72,5 +82,3 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
         return variables;
     }
 }
-
-
