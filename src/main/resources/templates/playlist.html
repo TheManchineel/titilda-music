@@ -42,6 +42,7 @@
             justify-content: center;
             gap: 16px;
             margin-top: 24px;
+            width: min(1100px, calc(100vw - 32px));
         }
 
         .song-table {
@@ -124,7 +125,7 @@
             text-decoration: none;
             display: inline-block;
             white-space: nowrap;
-            min-width: 120px;
+            /* min-width: 120px; */
             text-align: center;
         }
 
@@ -259,31 +260,31 @@
         <div class="song-row" th:if="${songs != null and !#lists.isEmpty(songs)}">
             <a class="nav-btn" th:classappend="${!(playlist != null and page > 0)} ? ' invisible'"
                 th:href="@{|?id=${playlist.id}&page=${page - 1}|}">
-                <</a>
+                &lt;</a>
 
-                    <table class="song-table">
-                        <colgroup>
-                            <col style="width:20%" />
-                            <col style="width:20%" />
-                            <col style="width:20%" />
-                            <col style="width:20%" />
-                            <col style="width:20%" />
-                        </colgroup>
-                        <tr>
-                            <td th:each="col : ${#numbers.sequence(0,#lists.size(songs) - 1)}">
-                                <a class="song-cell" th:href="${'/song?id=' + songs[col].id}">
-                                    <div class="song-cover">
-                                        <img th:src="${songs[col].artworkUrl}" alt="Song cover" />
-                                    </div>
-                                    <span class="song-text" th:text="${songs[col].title}">Song
-                                        title</span>
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
+            <table class="song-table">
+                <colgroup>
+                    <col style="width:20%" />
+                    <col style="width:20%" />
+                    <col style="width:20%" />
+                    <col style="width:20%" />
+                    <col style="width:20%" />
+                </colgroup>
+                <tr>
+                    <td th:each="col : ${#numbers.sequence(0,#lists.size(songs) - 1)}">
+                        <a class="song-cell" th:href="${'/song?id=' + songs[col].id}">
+                            <div class="song-cover">
+                                <img th:src="${songs[col].artworkUrl}" alt="Song cover" />
+                            </div>
+                            <span class="song-text" th:text="${songs[col].title}">Song
+                                title</span>
+                        </a>
+                    </td>
+                </tr>
+            </table>
 
-                    <a class="nav-btn" th:classappend="${!(playlist != null and page < pageCount - 1)} ? ' invisible'"
-                        th:href="@{|?id=${playlist.id}&page=${page + 1}|}">></a>
+            <a class="nav-btn" th:classappend="${!(playlist != null and page < pageCount - 1)} ? ' invisible'"
+                th:href="@{|?id=${playlist.id}&page=${page + 1}|}">&gt;</a>
         </div>
 
         <div th:if="${playlist != null}"
