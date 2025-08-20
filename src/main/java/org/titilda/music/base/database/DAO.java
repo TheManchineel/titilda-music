@@ -83,7 +83,7 @@ public final class DAO {
         if (user == null || user.getUsername() == null) {
             throw new IllegalArgumentException("User cannot be null and must have a valid username");
         }
-        String sql = "SELECT * FROM songs WHERE owner = ? ORDER BY title, release_year DESC";
+        String sql = "SELECT * FROM songs WHERE owner = ? ORDER BY artist, release_year, title";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
             return mapResultSetToSongList(ps);
@@ -99,9 +99,20 @@ public final class DAO {
      * @throws SQLException If there is an error during the database operation.
      */
     public List<Song> getSongsInPlaylist(UUID playlistId, int page) throws SQLException {
+        String manualSortCheckSql = "SELECT is_manually_sorted FROM playlists WHERE id = ?";
+        boolean isManuallySorted = false;
+        try (PreparedStatement ps = connection.prepareStatement(manualSortCheckSql)) {
+            ps.setObject(1, playlistId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    isManuallySorted = rs.getBoolean("is_manually_sorted");
+                }
+            }
+        }
+
         String sql = "SELECT s.* FROM songs s " +
                 "JOIN playlistsongs ps ON s.id = ps.song_id " +
-                "WHERE ps.playlist_id = ? ORDER BY ps.position " +
+                "WHERE ps.playlist_id = ? ORDER BY " + ((isManuallySorted) ? "ps.position " : "artist, release_year, title ") +
                 "LIMIT ? OFFSET ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -149,7 +160,7 @@ public final class DAO {
             throw new IllegalArgumentException("User cannot be null and must have a valid username");
         }
         String sql = "SELECT * FROM songs WHERE owner = ? AND id NOT IN " +
-                "(SELECT song_id FROM playlistsongs WHERE playlist_id = ?) ORDER BY title";
+                "(SELECT song_id FROM playlistsongs WHERE playlist_id = ?) ORDER BY artist, release_year, title";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());

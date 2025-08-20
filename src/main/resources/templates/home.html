@@ -205,6 +205,10 @@
                     </a>
                 </li>
             </ol>
+
+            <div
+                    th:replace="~{fragments/song-selection-form :: songSelectionForm('/form/create-playlist', 'Create Playlist', 'Create Playlist', ${userSongs}, 'playlistError', true, null, null)}">
+            </div>
         </section>
 
         <section>
@@ -263,10 +267,6 @@
                 </div>
             </form>
         </section>
-
-        <div
-            th:replace="~{fragments/song-selection-form :: songSelectionForm('/form/create-playlist', 'Create Playlist', 'Create Playlist', ${userSongs}, 'playlistError', true, null, null)}">
-        </div>
     </div>
 </div>
 

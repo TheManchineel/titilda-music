@@ -105,7 +105,17 @@
             object-position: center;
         }
 
-        .song-text {
+        .song-title {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .song-artist {
             display: block;
             width: 100%;
             white-space: nowrap;
@@ -276,8 +286,8 @@
                             <div class="song-cover">
                                 <img th:src="${songs[col].artworkUrl}" alt="Song cover" />
                             </div>
-                            <span class="song-text" th:text="${songs[col].title}">Song
-                                title</span>
+                            <span class="song-title" th:text="${songs[col].title}">Song title</span>
+                            <span class="song-artist" th:text="${songs[col].artist}">Artist name</span>
                         </a>
                     </td>
                 </tr>
