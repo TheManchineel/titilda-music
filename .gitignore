@@ -12,7 +12,6 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 
 ### IntelliJ IDEA ###
-!.idea/artifacts/*
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
@@ -49,3 +48,6 @@ build/
 ### IDEA ###
 
 .idea/
+
+### .run ###
+.run
