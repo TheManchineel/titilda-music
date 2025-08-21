@@ -1,4 +1,4 @@
-package org.titilda.music.ssr.routes;
+package org.titilda.music.ssr.forms;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

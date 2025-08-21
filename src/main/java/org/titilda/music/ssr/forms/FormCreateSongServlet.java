@@ -1,4 +1,4 @@
-package org.titilda.music.ssr.routes;
+package org.titilda.music.ssr.forms;
 
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;

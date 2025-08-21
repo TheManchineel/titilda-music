@@ -119,9 +119,6 @@
         <!-- Server-Side Rendering -->
         <profile>
             <id>ssr</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <build>
                 <finalName>music-ssr</finalName>
                 <plugins>
@@ -136,7 +133,7 @@
                                     <targetPath>WEB-INF/classes/templates</targetPath>
                                 </resource>
                             </webResources>
-                            <packagingExcludes>csr/**</packagingExcludes>
+                            <packagingExcludes>**/api/**,csr/**</packagingExcludes>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -144,6 +141,13 @@
         </profile>
         <profile>
             <id>csr</id>
+<!--            <dependencies>-->
+<!--                <dependency>-->
+<!--                    <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                    <artifactId>jackson-databind</artifactId>-->
+<!--                    <version>2.18.3</version>-->
+<!--                </dependency>-->
+<!--            </dependencies>-->
             <build>
                 <finalName>music-csr</finalName>
                 <plugins>
