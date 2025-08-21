@@ -1,0 +1,328 @@
+h1 {
+    margin-bottom: 0;
+}
+
+h2 {
+    margin-top: 24px;
+}
+
+.playlist-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 12px;
+    align-items: baseline;
+    color: #a0a0a0;
+    font-size: 0.85rem;
+    margin: 8px 0 4px 2rem;
+    padding: 0 12px;
+}
+
+.playlist-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 8px;
+    counter-reset: item;
+}
+
+.playlist-list li {
+    position: relative;
+    padding-left: 2rem;
+    margin: 0 0 8px 0;
+    counter-increment: item;
+}
+
+.playlist-list li:last-child {
+    margin-bottom: 0;
+}
+
+.playlist-list li::before {
+    content: counter(item) ".";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0a0a0;
+    width: 1.5rem;
+    text-align: right;
+}
+
+.playlist-btn {
+    appearance: none;
+    border: 1px solid #30363d;
+    background: #1f2328;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 12px;
+    align-items: baseline;
+    text-decoration: none;
+    color: inherit;
+}
+
+.playlist-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .35);
+    background: #24292f;
+}
+
+.playlist-name {
+    display: block;
+    font-weight: 600;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-date {
+    display: block;
+    font-size: 0.85rem;
+    color: #a0a0a0;
+    white-space: nowrap;
+    justify-self: end;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    column-gap: 48px;
+    align-items: start;
+}
+
+.create-song-form {
+    background: #1f2328;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #f0f6fc;
+}
+
+.form-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    background: #0d1117;
+    color: #f0f6fc;
+    font-size: 0.9rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #1f6feb;
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
+}
+
+.form-input[type="file"] {
+    padding: 6px 8px;
+    background: #21262d;
+}
+
+.form-submit {
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #238636;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.form-submit:hover {
+    background: #2ea043;
+}
+
+.optional-label {
+    color: #a0a0a0;
+    font-weight: 400;
+}
+
+.error-message {
+    background: #2d1516;
+    border: 1px solid #d1242f;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 16px;
+    color: #f85149;
+    font-size: 0.9rem;
+}
+
+.error-message p {
+    margin: 0;
+}
+
+/* Topbar styles */
+.topbar {
+    background-color: #161b22;
+    border-bottom: 1px solid #30363d;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.topbar-container {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+}
+
+.topbar-titilda {
+    font-size: 18px;
+    font-weight: 600;
+    color: #f0f6fc;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.topbar-titilda:hover {
+    color: #58a6ff;
+}
+
+.topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.topbar-link {
+    color: #f0f6fc;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.topbar-link:hover {
+    background-color: #21262d;
+}
+
+/* to do this w/o JS is pure wizardry */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-trigger {
+    color: #f0f6fc;
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* they said it couldn't be done, look at him go! */
+.profile-trigger:hover {
+    background-color: #21262d;
+    border-color: #58a6ff;
+    color: #f0f6fc;
+}
+
+/* it's these lil deets that took me a week entire */
+.dropdown-arrow {
+    border: solid #f0f6fc;
+    border-width: 0 1px 1px 0;
+    display: inline-block;
+    padding: 2px;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.profile-dropdown:hover .dropdown-arrow {
+    transform: rotate(-135deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    min-width: 160px;
+    z-index: 1001;
+    margin-top: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+}
+
+.profile-dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    color: #f0f6fc;
+    text-decoration: none;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
+    box-sizing: border-box;
+    /* otherwise non-buttons like <a> will have stupid padding */
+}
+
+.dropdown-item:hover {
+    background-color: #30363d;
+}
+
+.dropdown-item:first-child {
+    border-radius: 6px 6px 0 0;
+}
+
+.dropdown-item:last-child {
+    border-radius: 0 0 6px 6px;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #30363d;
+    margin: 4px 0;
+}
+
+.logout-form {
+    margin: 0;
+}

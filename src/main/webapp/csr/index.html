@@ -4,32 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TiTilda Music</title>
+    <link rel="stylesheet" href="/csr/css/home.css">
+    <link rel="stylesheet" href="/csr/css/styles.css">
+    <script src="/csr/js/index.js" defer></script>
 </head>
-<body>
-<h1>TiTilda Music</h1>
-<nav>
-    <a data-route="/">Home</a>
-    <a data-route="/about">About</a>
-    <a data-route="/contact">Contact</a>
+<body class="dark-theme">
+<nav class="topbar">
+    <div class="topbar-container">
+        <a data-route="/home" class="topbar-titilda">T~Music</a>
+
+        <div class="topbar-nav">
+            <a data-route="/home" class="topbar-link">Home</a>
+
+            <div class="profile-dropdown">
+                <div class="profile-trigger">
+                    <span>User</span>
+                    <span class="dropdown-arrow"></span>
+                </div>
+
+                <div class="dropdown-menu">
+                    <a data-route="/logout" class="dropdown-item">
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </nav>
 
 <div id="app"></div>
 
 <!-- Templates -->
 <template id="home">
-    <h2>Home</h2>
-    <div>
-        <p>Welcome! Here is a <strong>complex layout</strong> with nested HTML.</p>
-        <ul>
-            <li>Point A</li>
-            <li>Point B</li>
-            <li>Point C</li>
-        </ul>
+    <div class="main-content">
+
+        <h1>TiTilda Music!</h1>
+        <!--/*@thymesVar id="user" type="org.titilda.music.base.model.User"*/-->
+        <p th:if="${user}">Welcome back, <strong th:text="${user.fullName}">User</strong>.</p>
+
+        <!--/*@thymesVar id="playlists" type="java.util.List<org.titilda.music.base.model.Playlist>"*/-->
+        <div class="content-grid">
+            <section>
+                <h2>Your Playlists</h2>
+                <div th:if="${playlists == null or #lists.isEmpty(playlists)}">
+                    <p>No playlists yet.</p>
+                </div>
+                <div class="playlist-header" th:if="${playlists != null and !#lists.isEmpty(playlists)}">
+                    <span>Title</span>
+                    <span>Date created</span>
+                </div>
+                <ol class="playlist-list" th:if="${playlists != null and !#lists.isEmpty(playlists)}">
+                    <li th:each="playlist : ${playlists}">
+                        <a class="playlist-btn" th:href="'playlist?id=' + ${playlist.id}">
+                            <span class="playlist-name" th:text="${playlist.name}">Playlist name</span>
+                            <span class="playlist-date"
+                                  th:text="${#dates.format(playlist.createdAt, 'd MMM yyyy, HH:mm')}">2025-01-01 12:00</span>
+                        </a>
+                    </li>
+                </ol>
+
+                <div
+                        th:replace="~{fragments/song-selection-form :: songSelectionForm('/form/create-playlist', 'Create Playlist', 'Create Playlist', ${userSongs}, 'playlistError', true, null, null)}">
+                </div>
+            </section>
+
+            <section>
+                <h2>Create Song</h2>
+                <form class="create-song-form" action="/form/create-song" method="post" enctype="multipart/form-data">
+                    <!--/*@thymesVar id="error" type="java.lang.String"*/-->
+                    <div th:if="${error}" class="error-message">
+                        <p th:text="${error}">Error</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="songName">Song name</label>
+                        <input class="form-input" type="text" id="songName" name="songName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="artist">Artist</label>
+                        <input class="form-input" type="text" id="artist" name="artist" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="albumName">Album name</label>
+                        <input class="form-input" type="text" id="albumName" name="albumName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="albumYear">Album year</label>
+                        <input class="form-input" type="number" id="albumYear" name="albumYear" min="1900" max="2030"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="genre">Genre</label>
+                        <select class="form-input" id="genre" name="genre" required>
+                            <option value="" disabled selected>Select a genre</option>
+                            <!--/*@thymesVar id="genres" type="java.util.List<String>"*/-->
+                            <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label optional-label" for="artwork">Artwork <span
+                                class="optional-label">(optional)</span></label>
+                        <input class="form-input" type="file" id="artwork" name="artwork"
+                               accept="image/jpeg, image/png, image/webp">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="songFile">Song file</label>
+                        <input class="form-input" type="file" id="songFile" name="songFile"
+                               accept="audio/mpeg, audio/wav, audio/ogg, audio/flac" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="form-submit" type="submit">Create Song</button>
+                    </div>
+                </form>
+            </section>
+        </div>
     </div>
 </template>
 
-<template id="about">
-    <h2>About</h2>
+<template id="login">
+    <h2>Login</h2>
     <section>
         <p>This page contains multiple sections.</p>
         <div style="background:#eee;padding:10px;">
@@ -39,8 +139,8 @@
     </section>
 </template>
 
-<template id="contact">
-    <h2>Contact</h2>
+<template id="playlist">
+    <h2>Playlist</h2>
     <form>
         <label>Name: <input type="text"></label><br>
         <label>Email: <input type="email"></label><br>
@@ -48,38 +148,5 @@
     </form>
 </template>
 
-<script>
-    const routes = {
-        "/": document.getElementById("home"),
-        "/about": document.getElementById("about"),
-        "/contact": document.getElementById("contact"),
-    };
-
-    function navigate(path) {
-        window.history.pushState({}, path, window.location.origin + path);
-        const template = routes[path];
-        const app = document.getElementById("app");
-        app.innerHTML = "";
-        if (template) {
-            app.appendChild(template.content.cloneNode(true));
-        } else {
-            app.innerHTML = "<h2>404</h2><p>Page not found.</p>";
-        }
-    }
-
-    document.querySelectorAll("nav a").forEach(link => {
-        link.addEventListener("click", e => {
-            e.preventDefault(); // stop full reload
-            const path = e.target.getAttribute("data-route");
-            navigate(path);
-        });
-    });
-
-    window.addEventListener("popstate", () => {
-        navigate(window.location.pathname);
-    });
-
-    navigate(window.location.pathname);
-</script>
 </body>
 </html>
