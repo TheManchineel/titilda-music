@@ -2,6 +2,7 @@ package org.titilda.music.base.database;
 
 import org.titilda.music.base.model.*;
 
+import java.util.Date;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -401,5 +402,15 @@ public final class DAO {
             }
         }
         return Optional.empty();
+    }
+
+    public void setInvalidationDate(String nickname, Date date) throws SQLException {
+        String sql = "UPDATE users SET last_session_invalidation = ? WHERE username = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setTimestamp(1, new Timestamp(date.getTime()));
+            ps.setObject(2, nickname);
+            ps.executeUpdate();
+        }
     }
 }

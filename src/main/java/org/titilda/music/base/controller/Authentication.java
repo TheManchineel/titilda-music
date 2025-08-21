@@ -31,6 +31,12 @@ public final class Authentication {
         }
     }
 
+    public static class FailedToInvalidateSessionException extends Exception {
+        public FailedToInvalidateSessionException() {
+            super();
+        }
+    }
+
     private static final String TOKEN_SECRET = ConfigManager.getString(ConfigManager.ConfigKey.AUTH_SECRET);
 
     private static boolean validatePassword(String pass, String digest) {
@@ -97,6 +103,16 @@ public final class Authentication {
         }
         catch (SQLException _) {
             throw new UserCreationFailureException();
+        }
+    }
+
+    public static void invalidateAllSessions(User user) throws FailedToInvalidateSessionException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            DAO dao = new DAO(connection);
+            dao.setInvalidationDate(user.getUsername(), new Date());
+        }
+        catch (SQLException _) {
+            throw new FailedToInvalidateSessionException();
         }
     }
 }
