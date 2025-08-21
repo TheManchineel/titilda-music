@@ -55,7 +55,18 @@ public abstract non-sealed class BaseGetServlet extends BaseServlet {
                 // we tried our best
             }
         }
-        catch (IOException | InternalErrorException _) {
+        catch (InternalErrorException e) {
+            try {
+                if (e.getRedirect() != null)
+                    response.sendRedirect(e.getRedirect());
+                else
+                    response.sendRedirect("/error");
+            }
+            catch (IOException _) {
+                // it's not my fault
+            }
+        }
+        catch (IOException _) {
             try {
                 response.sendRedirect("/error");
             }

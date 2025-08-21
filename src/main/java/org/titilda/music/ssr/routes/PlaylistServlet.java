@@ -18,6 +18,7 @@ import java.util.UUID;
 
 @WebServlet(urlPatterns = { "/playlist" })
 public class PlaylistServlet extends BaseAuthenticatedGetServlet {
+    private static class PlaylistNotFoundException extends Exception {}
 
     @Override
     protected String getTemplatePath() {
@@ -28,56 +29,57 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
     protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response,
             User user) throws InternalErrorException {
         Map<String, Object> variables = new HashMap<>();
-        variables.put("user", user);
-
-        String idParam = request.getParameter("id");
-        if (idParam == null || idParam.isEmpty()) {
-            // no id parameter provided
-            variables.put("error", "Playlist not found");
-            return variables;
-        }
-
-        UUID playlistId;
         try {
-            playlistId = UUID.fromString(idParam);
-        } catch (IllegalArgumentException _) {
-            // invalid UUID format
-            variables.put("error", "Playlist not found");
-            return variables;
-        }
+            variables.put("user", user);
 
-        try (Connection connection = DatabaseManager.getConnection()) {
-            DAO dao = new DAO(connection);
-            Optional<Playlist> playlistOpt = dao.getPlaylistById(playlistId);
-            if (playlistOpt.isEmpty()) {
+            String idParam = request.getParameter("id");
+            if (idParam == null || idParam.isEmpty()) {
+                // no id parameter provided
                 variables.put("error", "Playlist not found");
                 return variables;
             }
 
-            int page = 0;
-            String off = request.getParameter("page");
-            if (off != null) {
-                try {
-                    page = Integer.parseInt(off);
-                } catch (NumberFormatException _) {}
+            UUID playlistId;
+            try {
+                playlistId = UUID.fromString(idParam);
+            } catch (IllegalArgumentException _) {
+                // invalid UUID format
+                throw new PlaylistNotFoundException();
             }
 
-            Playlist playlist = playlistOpt.get();
-            variables.put("playlist", playlist);
-            List<Song> songs = dao.getSongsInPlaylist(playlistId, page);
-            variables.put("songs", songs);
+            try (Connection connection = DatabaseManager.getConnection()) {
+                DAO dao = new DAO(connection);
+                Playlist playlist = dao.getPlaylistById(playlistId)
+                        .filter(p -> p.getOwner().equals(user.getUsername()))
+                        .orElseThrow(PlaylistNotFoundException::new);
 
-            // Get songs not in this playlist for the add songs form
-            List<Song> songsNotInPlaylist = dao.getSongsNotInPlaylist(user, playlistId);
-            variables.put("songsNotInPlaylist", songsNotInPlaylist);
+                int page = 0;
+                String off = request.getParameter("page");
+                if (off != null) {
+                    try {
+                        page = Integer.parseInt(off);
+                    } catch (NumberFormatException _) {
+                    }
+                }
 
-            variables.put("page", page);
-            variables.put("pageCount", dao.getSongPageCount(playlistId));
+                variables.put("playlist", playlist);
+                List<Song> songs = dao.getSongsInPlaylist(playlistId, page);
+                variables.put("songs", songs);
 
-        } catch (SQLException _) {
-            throw new InternalErrorException("Internal server error");
+                // Get songs not in this playlist for the add-songs form
+                List<Song> songsNotInPlaylist = dao.getSongsNotInPlaylist(user, playlistId);
+                variables.put("songsNotInPlaylist", songsNotInPlaylist);
+
+                variables.put("page", page);
+                variables.put("pageCount", dao.getSongPageCount(playlistId));
+            } catch (SQLException _) {
+                throw new InternalErrorException("Internal server error");
+            }
+
+            return variables;
         }
-
-        return variables;
+        catch (PlaylistNotFoundException _) {
+            throw new InternalErrorException("Playlist not found", "/error?error=not_found");
+        }
     }
 }
