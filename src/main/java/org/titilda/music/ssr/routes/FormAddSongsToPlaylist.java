@@ -32,7 +32,7 @@ public class FormAddSongsToPlaylist extends BaseAuthenticatedPostWithRedirectSer
 
         String[] songIds = request.getParameterValues("songIds");
         if (songIds == null) {
-            return "/error?error=bad_request";
+            return "/playlist?id=" + playlistId;
         }
 
         try (Connection connection = DatabaseManager.getConnection()) {
