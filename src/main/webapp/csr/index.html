@@ -6,6 +6,80 @@
     <title>TiTilda Music</title>
 </head>
 <body>
+<h1>TiTilda Music</h1>
+<nav>
+    <a data-route="/">Home</a>
+    <a data-route="/about">About</a>
+    <a data-route="/contact">Contact</a>
+</nav>
 
+<div id="app"></div>
+
+<!-- Templates -->
+<template id="home">
+    <h2>Home</h2>
+    <div>
+        <p>Welcome! Here is a <strong>complex layout</strong> with nested HTML.</p>
+        <ul>
+            <li>Point A</li>
+            <li>Point B</li>
+            <li>Point C</li>
+        </ul>
+    </div>
+</template>
+
+<template id="about">
+    <h2>About</h2>
+    <section>
+        <p>This page contains multiple sections.</p>
+        <div style="background:#eee;padding:10px;">
+            <h3>Mission</h3>
+            <p>We build simple SPAs without frameworks.</p>
+        </div>
+    </section>
+</template>
+
+<template id="contact">
+    <h2>Contact</h2>
+    <form>
+        <label>Name: <input type="text"></label><br>
+        <label>Email: <input type="email"></label><br>
+        <button type="submit">Send</button>
+    </form>
+</template>
+
+<script>
+    const routes = {
+        "/": document.getElementById("home"),
+        "/about": document.getElementById("about"),
+        "/contact": document.getElementById("contact"),
+    };
+
+    function navigate(path) {
+        window.history.pushState({}, path, window.location.origin + path);
+        const template = routes[path];
+        const app = document.getElementById("app");
+        app.innerHTML = "";
+        if (template) {
+            app.appendChild(template.content.cloneNode(true));
+        } else {
+            app.innerHTML = "<h2>404</h2><p>Page not found.</p>";
+        }
+    }
+
+    document.querySelectorAll("nav a").forEach(link => {
+        link.addEventListener("click", e => {
+            e.preventDefault(); // stop full reload
+            const path = e.target.getAttribute("data-route");
+            navigate(path);
+        });
+    });
+
+    window.addEventListener("popstate", () => {
+        navigate(window.location.pathname);
+    });
+
+    navigate(window.location.pathname);
+</script>
 </body>
 </html>
