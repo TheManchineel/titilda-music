@@ -21,7 +21,7 @@ import java.util.UUID;
 @WebServlet(urlPatterns = {"/api/playlists/*"}) // Expecting /api/playlist/{playlistId}/songs
 public class GetPlaylistSongsServlet extends AuthenticatedJsonGetServlet {
     @Override
-    protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, IOException, SQLException {
+    protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
         Iterator<String> iter = getPathComponents(req);
         String playlistIdStr = getNextPathComponent(iter);
         if(!getNextPathComponent(iter).equals("songs")){

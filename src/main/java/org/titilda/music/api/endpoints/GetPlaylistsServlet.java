@@ -18,7 +18,7 @@ import java.util.List;
 public class GetPlaylistsServlet extends AuthenticatedJsonGetServlet {
 
     @Override
-    protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, IOException, SQLException {
+    protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
         ensurePathComponentsFinished(getPathComponents(req));
         List<Playlist> playlists = new DAO(dbConnection).getPlaylistsOfOwner(user);
         return new ObjectMapper().valueToTree(playlists);
