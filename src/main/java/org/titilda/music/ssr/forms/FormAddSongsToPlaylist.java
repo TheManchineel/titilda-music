@@ -41,7 +41,7 @@ public class FormAddSongsToPlaylist extends BaseAuthenticatedPostWithRedirectSer
             for (String idStr : songIds) {
                 try {
                     UUID songId = UUID.fromString(idStr);
-                    dao.addSongToPlaylist(playlistId, songId);
+                    dao.addSongToPlaylist(playlistId, songId, user.getUsername());
                 } catch (IllegalArgumentException _) {
                     // ignore invalid UUIDs
                 }

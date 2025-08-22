@@ -43,7 +43,7 @@ public class FormCreatePlaylistServlet extends BaseAuthenticatedPostWithRedirect
             for (String idStr : selectedSongIds) {
                 try {
                     UUID songId = UUID.fromString(idStr);
-                    dao.addSongToPlaylist(playlist.getId(), songId);
+                    dao.addSongToPlaylist(playlist.getId(), songId, user.getUsername());
                 } catch (IllegalArgumentException _) {
                     // skip invalid UUIDs silently
                 }

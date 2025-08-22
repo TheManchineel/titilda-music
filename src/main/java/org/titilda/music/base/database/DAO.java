@@ -291,7 +291,30 @@ public final class DAO {
      * @return true if the song was successfully added, false otherwise
      * @throws SQLException If any database error occurs
      */
-    public boolean addSongToPlaylist(UUID playlistId, UUID songId) throws SQLException {
+    public boolean addSongToPlaylist(UUID playlistId, UUID songId, String username) throws SQLException {
+
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM playlists WHERE id = ? AND owner = ? LIMIT 1")) {
+            ps.setObject(1, playlistId);
+            ps.setString(2, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.isBeforeFirst()) {
+                    // playlist does not exist or does not belong to user
+                    return false;
+                }
+            }
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM songs WHERE id = ? AND owner = ? LIMIT 1")) {
+            ps.setObject(1, songId);
+            ps.setString(2, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.isBeforeFirst()) {
+                    // song does not exist or does not belong to user
+                    return false;
+                }
+            }
+        }
+
         try (PreparedStatement checkPs = connection.prepareStatement("SELECT song_id FROM playlistsongs WHERE playlist_id = ? AND song_id = ? LIMIT 1")) {
             checkPs.setObject(1, playlistId);
             checkPs.setObject(2, songId);
