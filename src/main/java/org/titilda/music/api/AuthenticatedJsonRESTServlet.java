@@ -1,5 +1,6 @@
 package org.titilda.music.api;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.servlet.http.HttpServlet;
@@ -34,12 +35,13 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
         return iter.next();
     }
 
-    protected static JsonNode getJsonRequestBody(HttpServletRequest req) throws InvalidRequestException {
+    protected static List<String> getJsonArrayRequestBody(HttpServletRequest req) throws InvalidRequestException {
         if (!"application/json".equalsIgnoreCase(req.getContentType())) {
             throw new InvalidRequestException("Expected application/json content type", HttpServletResponse.SC_BAD_REQUEST);
         }
         try {
-            return new JsonMapper().readTree(req.getInputStream());
+            return new JsonMapper().readValue(req.getInputStream(), new TypeReference<List<String>>() {
+            });
         } catch (IOException e) {
             throw new InvalidRequestException("Invalid JSON data", HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -79,7 +81,9 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
         JsonNode jsonNode;
 
         try (Connection dbConnection = DatabaseManager.getConnection()) {
+            dbConnection.setAutoCommit(false);
             jsonNode = processApiRequest(checkBearerToken(req), req, dbConnection);
+            dbConnection.commit();
         } catch (InvalidRequestException e) {
             resp.setStatus(e.getStatus());
             jsonNode = new JsonMapper().createObjectNode().put("error", e.getError());
