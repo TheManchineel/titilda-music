@@ -99,7 +99,7 @@ public final class DAO {
      * @return List of Song objects in the specified playlist, ordered by position.
      * @throws SQLException If there is an error during the database operation.
      */
-    public List<Song> getSongsInPlaylist(UUID playlistId, int page) throws SQLException {
+    public List<Song> getSongsInPlaylistPaginated(UUID playlistId, int page) throws SQLException {
         String manualSortCheckSql = "SELECT is_manually_sorted FROM playlists WHERE id = ?";
         boolean isManuallySorted = false;
         try (PreparedStatement ps = connection.prepareStatement(manualSortCheckSql)) {
@@ -120,6 +120,28 @@ public final class DAO {
             ps.setObject(1, playlistId);
             ps.setInt(2, PLAYLIST_SONG_PAGE_SIZE);
             ps.setInt(3, page * PLAYLIST_SONG_PAGE_SIZE);
+            return mapResultSetToSongList(ps);
+        }
+    }
+
+    public List<Song> getSongsInPlaylist(UUID playlistId) throws SQLException {
+        String manualSortCheckSql = "SELECT is_manually_sorted FROM playlists WHERE id = ?";
+        boolean isManuallySorted = false;
+        try (PreparedStatement ps = connection.prepareStatement(manualSortCheckSql)) {
+            ps.setObject(1, playlistId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    isManuallySorted = rs.getBoolean("is_manually_sorted");
+                }
+            }
+        }
+
+        String sql = "SELECT s.* FROM songs s " +
+                "JOIN playlistsongs ps ON s.id = ps.song_id " +
+                "WHERE ps.playlist_id = ? ORDER BY " + ((isManuallySorted) ? "ps.position " : "artist, release_year, title ");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setObject(1, playlistId);
             return mapResultSetToSongList(ps);
         }
     }

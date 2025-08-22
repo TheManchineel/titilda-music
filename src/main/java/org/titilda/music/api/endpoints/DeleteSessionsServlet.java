@@ -12,7 +12,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;
 
-@WebServlet(urlPatterns = { "/api/sessions"})
+@WebServlet(urlPatterns = { "/api/sessions"}) // Expecting DELETE /api/sessions to invalidate all sessions for the authenticated user
 public class DeleteSessionsServlet extends AuthenticatedJsonDeleteServlet {
     @Override
     protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {

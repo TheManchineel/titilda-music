@@ -63,7 +63,7 @@ public class PlaylistServlet extends BaseAuthenticatedGetServlet {
                 }
 
                 variables.put("playlist", playlist);
-                List<Song> songs = dao.getSongsInPlaylist(playlistId, page);
+                List<Song> songs = dao.getSongsInPlaylistPaginated(playlistId, page);
                 variables.put("songs", songs);
 
                 // Get songs not in this playlist for the add-songs form

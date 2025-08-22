@@ -11,7 +11,7 @@ import org.titilda.music.base.controller.Authentication;
 
 import java.io.IOException;
 
-@WebServlet("/api/auth/login")
+@WebServlet(urlPatterns = {"/api/auth/login"}) // Expecting POST /api/auth/login with JSON body {"username": "...", "password": "..."}
 public class PostAuthLoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

@@ -27,6 +27,13 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
         }
     }
 
+    protected final String getNextPathComponent(Iterator<String> iter) throws InvalidRequestException {
+        if (!iter.hasNext()) {
+            throw new InvalidRequestException("Not found", HttpServletResponse.SC_NOT_FOUND);
+        }
+        return iter.next();
+    }
+
     public static class InvalidRequestException extends Exception {
         private final int status;
         private final String error;
@@ -74,7 +81,7 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
 
         String jsonResponseText = jsonNode.toString();
         try {
-            resp.getWriter().write(jsonResponseText);
+            resp.getWriter().println(jsonResponseText);
         }
         catch (IOException _) {
             System.out.println("Error writing JSON response to socket.");
