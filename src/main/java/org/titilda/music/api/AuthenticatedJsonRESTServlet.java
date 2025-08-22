@@ -34,6 +34,17 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
         return iter.next();
     }
 
+    protected static JsonNode getJsonRequestBody(HttpServletRequest req) throws InvalidRequestException {
+        if (!"application/json".equalsIgnoreCase(req.getContentType())) {
+            throw new InvalidRequestException("Expected application/json content type", HttpServletResponse.SC_BAD_REQUEST);
+        }
+        try {
+            return new JsonMapper().readTree(req.getInputStream());
+        } catch (IOException e) {
+            throw new InvalidRequestException("Invalid JSON data", HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
     public static class InvalidRequestException extends Exception {
         private final int status;
         private final String error;
@@ -69,12 +80,10 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
 
         try (Connection dbConnection = DatabaseManager.getConnection()) {
             jsonNode = processApiRequest(checkBearerToken(req), req, dbConnection);
-        }
-        catch (InvalidRequestException e) {
+        } catch (InvalidRequestException e) {
             resp.setStatus(e.getStatus());
             jsonNode = new JsonMapper().createObjectNode().put("error", e.getError());
-        }
-        catch (SQLException | IOException _) {
+        } catch (SQLException | IOException _) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             jsonNode = new JsonMapper().createObjectNode().put("error", "Temporary error processing request");
         }
@@ -82,8 +91,7 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
         String jsonResponseText = jsonNode.toString();
         try {
             resp.getWriter().println(jsonResponseText);
-        }
-        catch (IOException _) {
+        } catch (IOException _) {
             System.out.println("Error writing JSON response to socket.");
         }
     }
