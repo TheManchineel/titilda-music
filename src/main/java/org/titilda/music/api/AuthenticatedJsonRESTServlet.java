@@ -65,7 +65,27 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
         }
     }
 
-    protected abstract JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, IOException, SQLException;
+    private static InvalidRequestException unsupportMethod() throws InvalidRequestException {
+        return new InvalidRequestException("Method not supported", HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
+    // ================ STUBBED METHODS ================
+    protected JsonNode processApiGet(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, IOException, SQLException {
+        throw unsupportMethod();
+    }
+    protected JsonNode processApiPost(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, IOException, SQLException {
+        throw unsupportMethod();
+    }
+    protected JsonNode processApiPut(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, IOException, SQLException {
+        throw unsupportMethod();
+    }
+    protected JsonNode processApiDelete(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, IOException, SQLException {
+        throw unsupportMethod();
+    }
+    protected JsonNode processApiPatch(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, IOException, SQLException {
+        throw unsupportMethod();
+    }
+    // =================================================
 
     private static User checkBearerToken(HttpServletRequest req) throws InvalidRequestException {
         return Optional
@@ -79,10 +99,18 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
     protected final void handleHttpRequest(HttpServletRequest req, HttpServletResponse resp) {
         resp.setContentType("application/json");
         JsonNode jsonNode;
-
         try (Connection dbConnection = DatabaseManager.getConnection()) {
             dbConnection.setAutoCommit(false);
-            jsonNode = processApiRequest(checkBearerToken(req), req, dbConnection);
+            User user = checkBearerToken(req);
+
+            jsonNode = switch (req.getMethod()) {
+                case "GET" -> processApiGet(user, req, dbConnection);
+                case "POST" -> processApiPost(user, req, dbConnection);
+                case "DELETE" -> processApiDelete(user, req, dbConnection);
+                case "PUT" -> processApiPut(user, req, dbConnection);
+                case "PATCH" -> processApiPatch(user, req, dbConnection);
+                default -> throw unsupportMethod();
+            };
             dbConnection.commit();
         } catch (InvalidRequestException e) {
             resp.setStatus(e.getStatus());
@@ -99,4 +127,27 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
             System.out.println("Error writing JSON response to socket.");
         }
     }
+
+    // ================ DEFAULT JAKARTA OVERRIDES ================
+    @Override
+    protected final void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        handleHttpRequest(req, resp);
+    }
+    @Override
+    protected final void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        handleHttpRequest(req, resp);
+    }
+    @Override
+    protected final void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        handleHttpRequest(req, resp);
+    }
+    @Override
+    protected final void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        handleHttpRequest(req, resp);
+    }
+    @Override
+    protected final void doPatch(HttpServletRequest req, HttpServletResponse resp) {
+        handleHttpRequest(req, resp);
+    }
+    //
 }

@@ -5,20 +5,18 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.titilda.music.api.AuthenticatedJsonPostServlet;
+import org.titilda.music.api.AuthenticatedJsonRESTServlet;
 import org.titilda.music.base.controller.AssetCrudManager;
 import org.titilda.music.base.model.User;
 import org.titilda.music.base.model.forms.CreateSongFormData;
 import org.titilda.music.base.util.MultiPartValidator;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 @WebServlet(urlPatterns = {"/api/songs"})
-public class PostSongsServlet extends AuthenticatedJsonPostServlet {
+public class PostSongsServlet extends AuthenticatedJsonRESTServlet {
     @Override
-    protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException {
+    protected JsonNode processApiPost(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException {
         ensurePathComponentsFinished(getPathComponents(req));
 
         try {

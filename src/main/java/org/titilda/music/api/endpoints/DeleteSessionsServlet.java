@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import org.titilda.music.api.AuthenticatedJsonDeleteServlet;
+import org.titilda.music.api.AuthenticatedJsonRESTServlet;
 import org.titilda.music.base.controller.Authentication;
 import org.titilda.music.base.model.User;
 
@@ -13,9 +13,9 @@ import java.sql.SQLException;
 import java.util.Iterator;
 
 @WebServlet(urlPatterns = { "/api/sessions"}) // Expecting DELETE /api/sessions to invalidate all sessions for the authenticated user
-public class DeleteSessionsServlet extends AuthenticatedJsonDeleteServlet {
+public class DeleteSessionsServlet extends AuthenticatedJsonRESTServlet {
     @Override
-    protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
+    protected JsonNode processApiDelete(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
         Iterator<String> pathComponents = getPathComponents(req);
         ensurePathComponentsFinished(pathComponents);
         // invalidate all existing sessions
