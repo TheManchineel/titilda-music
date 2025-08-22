@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-@WebServlet(urlPatterns = {"/api/playlists/*"}) // Expecting /api/playlist/{playlistId}/songs
+@WebServlet(urlPatterns = {"/api/playlists/*"}) // Expecting /api/playlists/{playlistId}/songs
 public class GetPlaylistSongsServlet extends AuthenticatedJsonGetServlet {
     @Override
     protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {

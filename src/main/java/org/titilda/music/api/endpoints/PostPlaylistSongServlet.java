@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
 
-@WebServlet(urlPatterns = {"/api/playlists/*"}) // Expecting /api/playlists/{playlistId}/songs
+@WebServlet(urlPatterns = {"/api/playlist/*"}) // Expecting /api/playlists/{playlistId}/songs
 public class PostPlaylistSongServlet extends AuthenticatedJsonPostServlet {
     @Override
     protected JsonNode processApiRequest(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
