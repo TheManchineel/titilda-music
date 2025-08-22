@@ -2,7 +2,6 @@ package org.titilda.music.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.util.ArrayIterator;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,7 +56,7 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
                 .orElseThrow(() -> new InvalidRequestException("Invalid token", HttpServletResponse.SC_UNAUTHORIZED));
     }
 
-    protected void handleHttpRequest(HttpServletRequest req, HttpServletResponse resp) {
+    protected final void handleHttpRequest(HttpServletRequest req, HttpServletResponse resp) {
         resp.setContentType("application/json");
         JsonNode jsonNode;
 
