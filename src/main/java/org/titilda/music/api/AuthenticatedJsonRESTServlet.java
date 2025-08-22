@@ -57,7 +57,7 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
     private static User checkBearerToken(HttpServletRequest req) throws InvalidRequestException {
         return Optional
                 .ofNullable(req.getHeader("Authorization"))
-                .filter(header -> header.startsWith("Bearer "))
+                .filter(header -> header.toLowerCase().startsWith("bearer "))
                 .map(header -> header.substring("Bearer ".length()))
                 .flatMap(Authentication::validateToken)
                 .orElseThrow(() -> new InvalidRequestException("Invalid token", HttpServletResponse.SC_UNAUTHORIZED));
