@@ -18,8 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-@WebServlet(urlPatterns = {"/api/playlists/*"}) // Expecting /api/playlists/{playlistId}/songs
-public class PlaylistsWildcardServlet extends AuthenticatedJsonRESTServlet {
+@WebServlet(urlPatterns = {"/api/playlists/*"})
+public class PlaylistsWildcardRESTServlet extends AuthenticatedJsonRESTServlet {
     @Override
     protected JsonNode processApiPost(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
         Iterator<String> iter = getPathComponents(req);
@@ -77,8 +77,6 @@ public class PlaylistsWildcardServlet extends AuthenticatedJsonRESTServlet {
                 .orElseThrow(() -> new InvalidRequestException("Playlist not found", HttpServletResponse.SC_NOT_FOUND));
 
         List<Song> songs = dao.getSongsInPlaylist(playlist.getId());
-
-
         return new ObjectMapper().valueToTree(songs);
     }
 }

@@ -42,7 +42,19 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
         try {
             return new JsonMapper().readValue(req.getInputStream(), new TypeReference<List<String>>() {
             });
-        } catch (IOException e) {
+        } catch (IOException _) {
+            throw new InvalidRequestException("Invalid JSON data", HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
+    protected static Object getJsonModelRequestBody(HttpServletRequest req, Class<?> clazz) throws InvalidRequestException {
+        if (!"application/json".equalsIgnoreCase(req.getContentType())) {
+            throw new InvalidRequestException("Expected application/json content type", HttpServletResponse.SC_BAD_REQUEST);
+        }
+        try {
+            return new JsonMapper().readValue(req.getInputStream(), clazz);
+        }
+        catch (IOException _) {
             throw new InvalidRequestException("Invalid JSON data", HttpServletResponse.SC_BAD_REQUEST);
         }
     }

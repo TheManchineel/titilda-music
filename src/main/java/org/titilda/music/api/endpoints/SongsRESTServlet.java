@@ -14,7 +14,7 @@ import org.titilda.music.base.util.MultiPartValidator;
 import java.sql.Connection;
 
 @WebServlet(urlPatterns = {"/api/songs"})
-public class PostSongsServlet extends AuthenticatedJsonRESTServlet {
+public class SongsRESTServlet extends AuthenticatedJsonRESTServlet {
     @Override
     protected JsonNode processApiPost(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException {
         ensurePathComponentsFinished(getPathComponents(req));
