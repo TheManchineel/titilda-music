@@ -1,3 +1,7 @@
+import Auth from "./auth.js";
+
+const auth = new Auth();
+
 const routes = {
     "/login": document.getElementById("login"),
     "/home": document.getElementById("home"),
@@ -16,6 +20,7 @@ function navigate(path) {
     }
 }
 
+
 document.querySelectorAll("nav a").forEach(link => {
     link.addEventListener("click", e => {
         e.preventDefault(); // stop full reload
@@ -29,4 +34,11 @@ window.addEventListener("popstate", () => {
 });
 
 const initialPath = window.location.pathname;
-navigate(routes[initialPath] ? initialPath : "/home");
+
+if(auth.isLoggedIn()){
+    console.log("Token found:", auth.token);
+    console.log("User is logged in, navigating to:", initialPath);
+    navigate(routes[initialPath] ? initialPath : "/home");
+}else{
+    navigate("/login");
+}
