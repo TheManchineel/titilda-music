@@ -14,6 +14,7 @@ function updateNavVisibility() {
 
 const routes = {
     "/login": document.getElementById("login"),
+    "/signup": document.getElementById("signup"),
     "/home": document.getElementById("home"),
     "/playlist": document.getElementById("playlist"),
 };
@@ -23,15 +24,45 @@ function initLogin() {
     if (!loginForm) return;
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
+        const username = loginForm.username.value;
+        const password = loginForm.password.value;
         try {
             await auth.login(username, password);
             updateNavVisibility();
             navigate("/home");
         } catch (err) {
-            alert("Login failed: " + err.message);
+            reportErrorToForm(loginForm, err);
         }
+    });
+    document.getElementById("signup-link").addEventListener("click", () => {
+        navigate("/signup");
+    });
+}
+
+function reportErrorToForm(form, err) {
+    let errorDiv = form.getElementsByClassName("error-message")[0]
+    errorDiv.classList.remove("hidden");
+    errorDiv.getElementsByClassName("error-text")[0].innerText = err.message;
+}
+
+function initSignup() {
+    const signupForm = document.getElementById("signup-form");
+    if (!signupForm) return;
+    signupForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = signupForm.username.value;
+        const password = signupForm.password.value;
+        const fullName = signupForm.fullName.value;
+        try {
+            await auth.signup(username, password, fullName);
+            updateNavVisibility();
+            navigate("/home");
+        } catch (err) {
+            reportErrorToForm(signupForm, err);
+        }
+    });
+    document.getElementById("login-link").addEventListener("click", () => {
+        navigate("/login");
     });
 }
 
@@ -52,6 +83,9 @@ function navigate(path) {
         app.appendChild(template.content.cloneNode(true));
         if(path[1] === "login"){
             initLogin();
+        }
+        if(path === "/signup"){
+            initSignup();
         }
         if(path[1] === "home"){
             initHome();

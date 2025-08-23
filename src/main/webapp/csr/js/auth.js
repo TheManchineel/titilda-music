@@ -66,13 +66,31 @@ export default class Auth {
         });
         if (!response.ok) {
             const err = await response.json().catch(() => ({}));
-            throw new Error("Login failed");
+            throw new Error(err.error || "Login failed");
         }
         const data = await response.json();
-        if (data.token_type === "Bearer" && data.access_token) {
+        if (data.token_type.toLowerCase() === "bearer" && data.access_token) {
             this.setToken(data.access_token);
         } else {
-            throw new Error("Login failed");
+            throw new Error("Login failed (invalid token type or access token)");
+        }
+    }
+
+    async signup(username, password, fullName) {
+        const response = await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, fullName }),
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error || "Signup failed");
+        }
+        const data = await response.json()
+        if (data.token_type.toLowerCase() === "bearer" && data.access_token) {
+            this.setToken(data.access_token);
+        } else {
+            throw new Error("Signup failed (invalid token type or access token)");
         }
 
         const userInfoResponse = await this.authenticatedFetch("/api/me", { method: "GET" });
