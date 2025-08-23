@@ -43,6 +43,7 @@ public final class FormCreatePlaylistServlet extends BaseAuthenticatedPostWithRe
             for (String idStr : selectedSongIds) {
                 try {
                     UUID songId = UUID.fromString(idStr);
+                    // ownership of the song and playlist is already checked in the DAO, failures are silent
                     dao.addSongToPlaylist(playlist.getId(), songId, user.getUsername());
                 } catch (IllegalArgumentException _) {
                     // skip invalid UUIDs silently

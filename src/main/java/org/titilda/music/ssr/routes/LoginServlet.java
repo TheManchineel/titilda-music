@@ -24,13 +24,7 @@ public final class LoginServlet extends BaseGetServlet {
         if (error != null) {
             switch (error) {
                 case "invalid_credentials" -> variables.put("error", "Invalid username or password.");
-                default -> {
-                    try {
-                        response.sendError(HttpServletResponse.SC_BAD_REQUEST , "Unknown error: " + error);
-                    } catch (IOException _) {
-                        // nothing to do here
-                    }
-                }
+                default -> variables.put("error", "Something went wrong.");
             }
         }
         return variables;

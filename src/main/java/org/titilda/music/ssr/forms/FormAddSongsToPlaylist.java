@@ -41,6 +41,7 @@ public final class FormAddSongsToPlaylist extends BaseAuthenticatedPostWithRedir
             for (String idStr : songIds) {
                 try {
                     UUID songId = UUID.fromString(idStr);
+                    // ownership of the song and playlist is already checked in the DAO, failures are silent
                     dao.addSongToPlaylist(playlistId, songId, user.getUsername());
                 } catch (IllegalArgumentException _) {
                     // ignore invalid UUIDs

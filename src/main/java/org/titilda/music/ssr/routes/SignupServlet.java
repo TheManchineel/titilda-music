@@ -25,13 +25,7 @@ public final class SignupServlet extends BaseGetServlet {
                 case "invalid_data" -> variables.put("error", "Please fill in all required fields.");
                 case "failed_to_register" -> variables.put("error", "Registration failed. Please try again.");
                 case "user_already_exists" -> variables.put("error", "Username already exists. Please choose a different username.");
-                default -> {
-                    try {
-                        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown error: " + error);
-                    } catch (IOException _) {
-                        // it's not my fault :/
-                    }
-                }
+                default -> variables.put("error", "Something went wrong. Please try again.");
             }
         }
         return variables;
