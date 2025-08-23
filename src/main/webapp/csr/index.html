@@ -40,8 +40,7 @@
     <div class="main-content">
 
         <h1>TiTilda Music!</h1>
-        <!--/*@thymesVar id="user" type="org.titilda.music.base.model.User"*/-->
-        <p th:if="${user}">Welcome back, <strong th:text="${user.fullName}">User</strong>.</p>
+        <p>Welcome back, <strong id="full-name">User</strong>.</p>
 
         <!--/*@thymesVar id="playlists" type="java.util.List<org.titilda.music.base.model.Playlist>"*/-->
         <div class="content-grid">

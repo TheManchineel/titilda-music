@@ -1,6 +1,8 @@
 export default class Auth {
 
     static TOKEN_KEY = "titilda_music_access_token";
+    static FULL_NAME_KEY = "titilda_music_full_name";
+    static USERNAME_KEY = "titilda_music_username";
 
     /**
      * Constructor
@@ -9,6 +11,8 @@ export default class Auth {
      */
     constructor() {
         this.token = localStorage.getItem(Auth.TOKEN_KEY);
+        this.fullName = localStorage.getItem(Auth.FULL_NAME_KEY);
+        this.username = localStorage.getItem(Auth.USERNAME_KEY);
     }
 
     /**
@@ -32,6 +36,8 @@ export default class Auth {
      */
     isLoggedIn() {
         console.log("Checking if user is logged in. Token:", this.token);
+        console.log("Full Name:", this.fullName);
+        console.log("Username:", this.username);
         return this.token !== null;
     }
 
@@ -68,6 +74,24 @@ export default class Auth {
         } else {
             throw new Error("Login failed");
         }
+
+        const userInfoResponse = await this.authenticatedFetch("/api/me", { method: "GET" });
+        if (userInfoResponse.ok) {
+            const userInfo = await userInfoResponse.json();
+            console.log(userInfoResponse.status, userInfo);
+            this.fullName = userInfo.fullName;
+            this.username = userInfo.username;
+            if (this.fullName) {
+                localStorage.setItem(Auth.FULL_NAME_KEY, this.fullName);
+            }
+            if (this.username) {
+                localStorage.setItem(Auth.USERNAME_KEY, this.username);
+            }
+        } else {
+            const errorBody = await userInfoResponse.text().catch(() => "");
+            console.log(userInfoResponse.status, errorBody);
+        }
+
     }
 
     /**
@@ -77,6 +101,10 @@ export default class Auth {
      */
     logout() {
         this.setToken(null);
+        this.fullName = null;
+        this.username = null;
+        localStorage.removeItem(Auth.FULL_NAME_KEY);
+        localStorage.removeItem(Auth.USERNAME_KEY);
         window.location.href = "/login";
     }
 
@@ -108,6 +136,30 @@ export default class Auth {
             ...this.getAuthHeader(),
         };
         return fetch(url, { ...options, headers });
+    }
+
+    /**
+     * Get the full name of the logged in user
+     * @returns {String |null}
+     */
+    getFullName() {
+        return this.fullName;
+    }
+
+    /**
+     * Get the username of the logged in user
+     * @returns {String |null}
+     */
+    getusername() {
+        return this.username;
+    }
+
+    /**
+     * Preferred-casing alias for username getter
+     * @returns {String | null}
+     */
+    getUsername() {
+        return this.username;
     }
 
 }

@@ -35,6 +35,12 @@ function initLogin() {
     });
 }
 
+function initHome() {
+    const fullNameEl = document.getElementById("full-name");
+    if (!fullNameEl) return;
+    fullNameEl.textContent = auth.getFullName() || "User";
+}
+
 function navigate(path) {
     window.history.pushState({}, path, window.location.origin + path);
     path = path.split("/");
@@ -46,6 +52,9 @@ function navigate(path) {
         app.appendChild(template.content.cloneNode(true));
         if(path[1] === "login"){
             initLogin();
+        }
+        if(path[1] === "home"){
+            initHome();
         }
     } else {
         app.innerHTML = "<h2>404</h2><p>Page not found.</p>";
