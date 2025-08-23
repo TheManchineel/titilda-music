@@ -159,5 +159,4 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet implement
     protected final void doPatch(HttpServletRequest req, HttpServletResponse resp) {
         handleHttpRequest(req, resp);
     }
-    //
 }

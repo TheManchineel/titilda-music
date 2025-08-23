@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @WebServlet(urlPatterns = {"/static/*"})
-public class GetStaticWildcardServlet extends StaticAssetsServletFoundation implements BearerTokenInterface {
+public final class GetStaticWildcardServlet extends StaticAssetsServletFoundation implements BearerTokenInterface {
     @Override
     public Optional<String> getToken(HttpServletRequest req) {
         return BearerTokenInterface.super.getToken(req);
