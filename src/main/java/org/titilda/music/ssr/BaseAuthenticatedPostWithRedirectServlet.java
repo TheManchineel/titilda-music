@@ -12,7 +12,7 @@ public abstract class BaseAuthenticatedPostWithRedirectServlet extends BasePostW
     protected abstract String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException;
 
     @Override
-    protected final String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected final String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response) {
         return getToken(request)
                 .flatMap(Authentication::validateToken)
                 .map(user -> {

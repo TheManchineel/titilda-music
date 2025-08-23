@@ -3,7 +3,6 @@ package org.titilda.music.ssr.routes;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.titilda.music.base.exceptions.UnauthenticatedException;
 import org.titilda.music.ssr.BaseGetServlet;
 
 import java.util.HashMap;
@@ -17,7 +16,7 @@ public final class ErrorServlet extends BaseGetServlet {
     }
 
     @Override
-    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response) throws UnauthenticatedException {
+    protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response) {
         String errorMessage = switch (request.getParameter("error")) {
             case "bad_request" -> {
                 response.setStatus(400);

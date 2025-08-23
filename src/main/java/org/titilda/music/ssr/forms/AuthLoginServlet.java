@@ -15,7 +15,7 @@ public final class AuthLoginServlet extends BasePostWithRedirectServlet {
     private static final String SUCCESS_REDIRECT_URL = "/home";
 
     @Override
-    protected String processRequestAndRedirect(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected String processRequestAndRedirect(HttpServletRequest req, HttpServletResponse resp) {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         if (username == null || password == null) {

@@ -17,7 +17,7 @@ public abstract non-sealed class BasePostWithRedirectServlet extends BaseServlet
      * @throws ServletException if an error occurs while processing the request
      * @throws IOException if an input or output error is detected when handling the request
      */
-    abstract protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
+    abstract protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -26,9 +26,6 @@ public abstract non-sealed class BasePostWithRedirectServlet extends BaseServlet
             if (redirectUri != null) {
                 resp.sendRedirect(redirectUri);
             }
-        }
-        catch (ServletException _) {
-            resp.sendRedirect("/error?error=bad_request");
         }
         catch (IOException _) {
             try {

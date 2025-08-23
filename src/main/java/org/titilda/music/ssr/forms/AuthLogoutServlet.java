@@ -12,8 +12,7 @@ import java.io.IOException;
 @WebServlet(urlPatterns = { "/auth/logout" })
 public final class AuthLogoutServlet extends BasePostWithRedirectServlet {
     @Override
-    protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response) {
 
         // Clear the authentication cookie
         Cookie cookie = generateTokenCookie("");

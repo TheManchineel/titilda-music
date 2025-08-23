@@ -1,6 +1,5 @@
 package org.titilda.music.ssr;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,17 +9,22 @@ import java.io.IOException;
 @WebServlet(name="/", urlPatterns = {"/"})
 public final class RootRedirectServlet extends BaseServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (!req.getRequestURI().equals("/")) {
-            resp.sendRedirect("/error?error=not_found");
-            return;
-        }
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            if (!req.getRequestURI().equals("/")) {
+                resp.sendRedirect("/error?error=not_found");
+                return;
+            }
 
-        if (getToken(req).isEmpty()) {
-            resp.sendRedirect("/login");
-            return;
-        }
+            if (getToken(req).isEmpty()) {
+                resp.sendRedirect("/login");
+                return;
+            }
 
-        resp.sendRedirect("/home");
+            resp.sendRedirect("/home");
+        }
+        catch (IOException _) {
+            // there's nothing we can do here
+        }
     }
 }

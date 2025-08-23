@@ -28,7 +28,7 @@ public abstract non-sealed class BaseGetServlet extends BaseServlet {
      * @param response the HTTP response
      * @return a map of variables to pass to the template
      */
-    abstract protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response) throws UnauthenticatedException, InternalErrorException;
+    protected abstract Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response) throws UnauthenticatedException, InternalErrorException;
 
     /**
      * Renders the template and writes it to the response.
@@ -77,7 +77,7 @@ public abstract non-sealed class BaseGetServlet extends BaseServlet {
     }
 
     @Override
-    protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected final void doGet(HttpServletRequest req, HttpServletResponse resp) {
         renderTemplate(req, resp);
     }
 }

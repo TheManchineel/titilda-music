@@ -12,8 +12,7 @@ import java.io.IOException;
 @WebServlet(urlPatterns = { "/auth/signup" })
 public final class AuthSignupServlet extends BasePostWithRedirectServlet {
     @Override
-    protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response) {
         String fullName = request.getParameter("fullName");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
