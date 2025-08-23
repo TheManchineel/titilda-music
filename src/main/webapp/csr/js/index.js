@@ -37,12 +37,14 @@ function initLogin() {
 
 function navigate(path) {
     window.history.pushState({}, path, window.location.origin + path);
-    const template = routes[path];
+    path = path.split("/");
+    console.log(path);
+    const template = routes["/" + (path[1] || "")];
     const app = document.getElementById("app");
     app.innerHTML = "";
     if (template) {
         app.appendChild(template.content.cloneNode(true));
-        if(path === "/login"){
+        if(path[1] === "login"){
             initLogin();
         }
     } else {
@@ -77,8 +79,6 @@ const initialPath = window.location.pathname;
 updateNavVisibility();
 
 if(auth.isLoggedIn()){
-    console.log("Token found:", auth.token);
-    console.log("User is logged in, navigating to:", initialPath);
     navigate(routes[initialPath] ? initialPath : "/home");
 }else{
     navigate("/login");
