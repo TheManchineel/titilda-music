@@ -8,6 +8,22 @@ const routes = {
     "/playlist": document.getElementById("playlist"),
 };
 
+function initLogin() {
+    const loginForm = document.getElementById("login-form");
+    if (!loginForm) return;
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        try {
+            await auth.login(username, password);
+            navigate("/home");
+        } catch (err) {
+            alert("Login failed: " + err.message);
+        }
+    });
+}
+
 function navigate(path) {
     window.history.pushState({}, path, window.location.origin + path);
     const template = routes[path];
@@ -15,6 +31,9 @@ function navigate(path) {
     app.innerHTML = "";
     if (template) {
         app.appendChild(template.content.cloneNode(true));
+        if(path === "/login"){
+            initLogin();
+        }
     } else {
         app.innerHTML = "<h2>404</h2><p>Page not found.</p>";
     }
@@ -25,7 +44,15 @@ document.querySelectorAll("nav a").forEach(link => {
     link.addEventListener("click", e => {
         e.preventDefault(); // stop full reload
         const path = e.target.getAttribute("data-route");
-        navigate(path);
+        if(!auth.isLoggedIn()){
+            navigate("/login");
+            return;
+        }
+        if (path === "/logout") {
+            auth.logout();
+            return;
+        }
+        if (path) navigate(path);
     });
 });
 

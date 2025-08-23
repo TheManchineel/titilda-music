@@ -21,6 +21,7 @@ public final class FallbackRouterServlet extends HttpServlet {
             new HashSet<>(Arrays.asList(
                     "/css/home.css",
                     "/css/styles.css",
+                    "/css/login.css",
                     "/js/auth.js",
                     "/js/index.js"
             ));
