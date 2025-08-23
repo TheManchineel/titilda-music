@@ -353,6 +353,21 @@ public final class DAO {
         throw new SQLException("Failed to add song to playlist");
     }
 
+    public void clearPlaylist(UUID playlistId, boolean setManuallySorted) throws SQLException {
+        String sql = "DELETE FROM playlistsongs WHERE playlist_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setObject(1, playlistId);
+            ps.executeUpdate();
+            if (setManuallySorted) {
+                sql = "UPDATE playlists SET is_manually_sorted = TRUE WHERE id = ?";
+                try (PreparedStatement psManualSort = connection.prepareStatement(sql)) {
+                    psManualSort.setObject(1, playlistId);
+                    psManualSort.executeUpdate();
+                }
+            }
+        }
+    }
+
     /**
      * Retrieves all playlists owned by a specific user.
      * This method uses a prepared statement to prevent SQL injection.

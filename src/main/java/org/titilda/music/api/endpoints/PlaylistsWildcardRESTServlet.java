@@ -12,8 +12,10 @@ import org.titilda.music.base.model.Playlist;
 import org.titilda.music.base.model.Song;
 import org.titilda.music.base.model.User;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -78,5 +80,54 @@ public final class PlaylistsWildcardRESTServlet extends AuthenticatedJsonRESTSer
 
         List<Song> songs = dao.getSongsInPlaylist(playlist.getId());
         return new ObjectMapper().valueToTree(songs);
+    }
+
+    @Override
+    protected JsonNode processApiPut(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
+        Iterator<String> iter = getPathComponents(req);
+        String playlistIdStr = getNextPathComponent(iter);
+        if(!getNextPathComponent(iter).equals("song-order")){
+            throw new InvalidRequestException("Not found", HttpServletResponse.SC_NOT_FOUND);
+        }
+        ensurePathComponentsFinished(iter);
+
+        UUID playlistId;
+        try {
+            playlistId = UUID.fromString(playlistIdStr);
+        } catch (IllegalArgumentException _) {
+            throw new InvalidRequestException("Invalid playlist ID", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        DAO dao = new DAO(dbConnection);
+        dao
+                .getPlaylistById(playlistId)
+                .map(Playlist::getOwner)
+                .filter(owner -> owner.equals(user.getUsername()))
+                .orElseThrow(() -> new InvalidRequestException("Playlist not found", HttpServletResponse.SC_NOT_FOUND));
+
+        List<UUID> reorderedSongIds = getJsonArrayRequestBody(req).stream().map(s -> {
+            try {
+                return UUID.fromString(s);
+            }
+            catch (IllegalArgumentException _) {
+                return null;
+            }
+        }).distinct().toList();
+
+        List<UUID> currentSongIds = dao.getSongsInPlaylist(playlistId).stream().map(Song::getId).toList();
+
+        if (reorderedSongIds.size() != currentSongIds.size() || !new HashSet<>(reorderedSongIds).equals(new HashSet<>(currentSongIds)))
+            throw new InvalidRequestException(
+                    "Songs in playlist and reordered array must be the same",
+                    HttpServletResponse.SC_BAD_REQUEST
+            );
+
+        dao.clearPlaylist(playlistId, true);
+        for (UUID songId : reorderedSongIds) {
+            dao.addSongToPlaylist(playlistId, songId, user.getUsername());
+        }
+
+        List<Song> updatedSongs = dao.getSongsInPlaylist(playlistId);
+        return new ObjectMapper().valueToTree(updatedSongs);
     }
 }

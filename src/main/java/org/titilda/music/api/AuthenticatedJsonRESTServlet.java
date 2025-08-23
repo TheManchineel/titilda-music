@@ -127,8 +127,9 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
         } catch (InvalidRequestException e) {
             resp.setStatus(e.getStatus());
             jsonNode = new JsonMapper().createObjectNode().put("error", e.getError());
-        } catch (SQLException | IOException _) {
+        } catch (SQLException | IOException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            System.out.println(e.getMessage());
             jsonNode = new JsonMapper().createObjectNode().put("error", "Temporary error processing request");
         }
 
