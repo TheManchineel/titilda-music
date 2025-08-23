@@ -54,3 +54,8 @@ body.dark-theme {
 .dark-theme .btn:hover {
     background-color: #30363d;
 }
+
+/* Utility */
+.hidden {
+    display: none;
+}

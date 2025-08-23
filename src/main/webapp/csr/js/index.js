@@ -2,6 +2,16 @@ import Auth from "./auth.js";
 
 const auth = new Auth();
 
+function updateNavVisibility() {
+    const navEl = document.getElementById("nav");
+    if (!navEl) return;
+    if (auth.isLoggedIn()) {
+        navEl.classList.remove("hidden");
+    } else {
+        navEl.classList.add("hidden");
+    }
+}
+
 const routes = {
     "/login": document.getElementById("login"),
     "/home": document.getElementById("home"),
@@ -17,6 +27,7 @@ function initLogin() {
         const password = document.getElementById("password").value;
         try {
             await auth.login(username, password);
+            updateNavVisibility();
             navigate("/home");
         } catch (err) {
             alert("Login failed: " + err.message);
@@ -37,6 +48,7 @@ function navigate(path) {
     } else {
         app.innerHTML = "<h2>404</h2><p>Page not found.</p>";
     }
+    updateNavVisibility();
 }
 
 
@@ -61,6 +73,8 @@ window.addEventListener("popstate", () => {
 });
 
 const initialPath = window.location.pathname;
+
+updateNavVisibility();
 
 if(auth.isLoggedIn()){
     console.log("Token found:", auth.token);
