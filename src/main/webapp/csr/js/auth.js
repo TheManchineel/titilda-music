@@ -76,7 +76,7 @@ export default class Auth {
      * @throws Error if the logout fails
      */
     logout() {
-        this.token = null;
+        this.setToken(null);
         window.location.href = "/login";
     }
 
