@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @WebServlet(urlPatterns = {"/api/songs"})
 @MultipartConfig
-public class SongsRESTServlet extends AuthenticatedJsonRESTServlet {
+public final class SongsRESTServlet extends AuthenticatedJsonRESTServlet {
     // POST /api/songs
     @Override
     protected JsonNode processApiPost(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException {

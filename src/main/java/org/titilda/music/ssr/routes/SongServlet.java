@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = { "/song" })
-public class SongServlet extends BaseAuthenticatedGetServlet {
+public final class SongServlet extends BaseAuthenticatedGetServlet {
 
     @Override
     protected String getTemplatePath() {

@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = { "/playlist" })
-public class PlaylistServlet extends BaseAuthenticatedGetServlet {
+public final class PlaylistServlet extends BaseAuthenticatedGetServlet {
     private static class PlaylistNotFoundException extends Exception {}
 
     @Override

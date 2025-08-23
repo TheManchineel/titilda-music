@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 import org.titilda.music.base.util.MultiPartValidator;
 
-public class CreateSongFormData extends MultiPartValidator {
+public final class CreateSongFormData extends MultiPartValidator {
     @MultipartField(name = "songName", contentTypes = {}, maxSize = 256L)
     public String songName;
 

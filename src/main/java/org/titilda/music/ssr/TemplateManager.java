@@ -10,7 +10,7 @@ import java.util.Map;
  * Simple utility class for handling Thymeleaf template processing.
  * Provides a centralized way to configure and render templates.
  */
-public class TemplateManager {
+public final class TemplateManager {
     private static final TemplateEngine templateEngine;
     
     static {

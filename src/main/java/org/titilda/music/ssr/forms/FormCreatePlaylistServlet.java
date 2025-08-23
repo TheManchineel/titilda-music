@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = { "/form/create-playlist" })
-public class FormCreatePlaylistServlet extends BaseAuthenticatedPostWithRedirectServlet {
+public final class FormCreatePlaylistServlet extends BaseAuthenticatedPostWithRedirectServlet {
     private static final String FAILURE_URL = "/home";
 
     @Override

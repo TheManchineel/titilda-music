@@ -19,7 +19,7 @@ import static org.titilda.music.api.utils.JsonManipulation.createJwtResponse;
 import static org.titilda.music.api.utils.JsonManipulation.ensureStringField;
 
 @WebServlet(urlPatterns = {"/api/auth/signup"})
-public class PostAuthSignupServlet extends HttpServlet {
+public final class PostAuthSignupServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {

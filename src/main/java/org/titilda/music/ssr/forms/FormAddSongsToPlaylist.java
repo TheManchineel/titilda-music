@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = { "/form/add-songs-to-playlist" })
-public class FormAddSongsToPlaylist extends BaseAuthenticatedPostWithRedirectServlet {
+public final class FormAddSongsToPlaylist extends BaseAuthenticatedPostWithRedirectServlet {
     @Override
     protected String processRequestAndRedirect(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {

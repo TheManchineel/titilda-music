@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = {"/api/playlists"}) // Expecting /api/playlists
-public class PlaylistsRESTServlet extends AuthenticatedJsonRESTServlet {
+public final class PlaylistsRESTServlet extends AuthenticatedJsonRESTServlet {
     // GET /api/playlists
     @Override
     protected JsonNode processApiGet(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {

@@ -1,4 +1,4 @@
 package org.titilda.music.base.exceptions;
 
-public class UnauthenticatedException extends Exception {
+public final class UnauthenticatedException extends Exception {
 }

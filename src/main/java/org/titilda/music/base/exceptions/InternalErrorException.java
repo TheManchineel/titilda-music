@@ -1,6 +1,6 @@
 package org.titilda.music.base.exceptions;
 
-public class InternalErrorException extends Exception {
+public final class InternalErrorException extends Exception {
     private final String redirect;
 
     public InternalErrorException(String message) {

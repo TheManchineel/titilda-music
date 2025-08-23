@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet(urlPatterns={"/error"})
-public class ErrorServlet extends BaseGetServlet {
+public final class ErrorServlet extends BaseGetServlet {
     @Override
     protected String getTemplatePath() {
         return "error";

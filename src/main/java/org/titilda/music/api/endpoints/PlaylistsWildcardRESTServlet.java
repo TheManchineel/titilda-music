@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = {"/api/playlists/*"})
-public class PlaylistsWildcardRESTServlet extends AuthenticatedJsonRESTServlet {
+public final class PlaylistsWildcardRESTServlet extends AuthenticatedJsonRESTServlet {
     @Override
     protected JsonNode processApiPost(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
         Iterator<String> iter = getPathComponents(req);
