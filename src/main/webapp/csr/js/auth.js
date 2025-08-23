@@ -35,9 +35,9 @@ export default class Auth {
      * @returns true if the user is logged in, false otherwise
      */
     isLoggedIn() {
-        console.log("Checking if user is logged in. Token:", this.token);
-        console.log("Full Name:", this.fullName);
-        console.log("Username:", this.username);
+        //console.log("Checking if user is logged in. Token:", this.token);
+        //console.log("Full Name:", this.fullName);
+        //console.log("Username:", this.username);
         return this.token !== null;
     }
 

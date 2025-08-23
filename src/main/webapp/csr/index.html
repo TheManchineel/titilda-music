@@ -42,38 +42,35 @@
         <h1>TiTilda Music!</h1>
         <p>Welcome back, <strong id="full-name">User</strong>.</p>
 
-        <!--/*@thymesVar id="playlists" type="java.util.List<org.titilda.music.base.model.Playlist>"*/-->
         <div class="content-grid">
             <section>
                 <h2>Your Playlists</h2>
-                <div th:if="${playlists == null or #lists.isEmpty(playlists)}">
+                <div>
                     <p>No playlists yet.</p>
                 </div>
-                <div class="playlist-header" th:if="${playlists != null and !#lists.isEmpty(playlists)}">
+                <div class="playlist-header">
                     <span>Title</span>
                     <span>Date created</span>
                 </div>
-                <ol class="playlist-list" th:if="${playlists != null and !#lists.isEmpty(playlists)}">
-                    <li th:each="playlist : ${playlists}">
-                        <a class="playlist-btn" th:href="'playlist?id=' + ${playlist.id}">
-                            <span class="playlist-name" th:text="${playlist.name}">Playlist name</span>
-                            <span class="playlist-date"
-                                  th:text="${#dates.format(playlist.createdAt, 'd MMM yyyy, HH:mm')}">2025-01-01 12:00</span>
+                <ol class="playlist-list">
+                    <li>
+                        <a class="playlist-btn">
+                            <span class="playlist-name">Playlist name</span>
+                            <span class="playlist-date">2025-01-01 12:00</span>
                         </a>
                     </li>
                 </ol>
 
-                <div
-                        th:replace="~{fragments/song-selection-form :: songSelectionForm('/form/create-playlist', 'Create Playlist', 'Create Playlist', ${userSongs}, 'playlistError', true, null, null)}">
-                </div>
+                <div>
+                        </div>
             </section>
 
             <section>
                 <h2>Create Song</h2>
                 <form class="create-song-form" action="/form/create-song" method="post" enctype="multipart/form-data">
                     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
-                    <div th:if="${error}" class="error-message">
-                        <p th:text="${error}">Error</p>
+                    <div class="error-message">
+                        <p>Error</p>
                     </div>
 
                     <div class="form-group">
@@ -101,8 +98,7 @@
                         <label class="form-label" for="genre">Genre</label>
                         <select class="form-input" id="genre" name="genre" required>
                             <option value="" disabled selected>Select a genre</option>
-                            <!--/*@thymesVar id="genres" type="java.util.List<String>"*/-->
-                            <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"></option>
+                            <option></option>
                         </select>
                     </div>
 

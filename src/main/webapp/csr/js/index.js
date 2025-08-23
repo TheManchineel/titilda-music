@@ -66,10 +66,72 @@ function initSignup() {
     });
 }
 
+/**
+ * Fetch playlist items from the server
+ * @returns {Promise<Array>} a promise that resolves to an array of playlist items
+ */
+function getPlaylistItems() {
+    return auth.authenticatedFetch("/api/playlists", {method: "GET"})
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch playlist");
+            }
+            return response.json();
+        })
+        .then(data => {
+            return Array.isArray(data) ? data : [];
+        });
+}
+
 function initHome() {
     const fullNameEl = document.getElementById("full-name");
     if (!fullNameEl) return;
     fullNameEl.textContent = auth.getFullName() || "User";
+
+    // Fetch and display playlist items
+    getPlaylistItems()
+        .then(items => {
+            const playlistEl = document.querySelector(".playlist-list");
+            if (!playlistEl) return;
+
+            const frag = document.createDocumentFragment();
+
+            items.forEach(item => {
+                const li = document.createElement("li");
+                const a = document.createElement("a");
+                a.className = "playlist-btn";
+
+                const nameSpan = document.createElement("span");
+                nameSpan.className = "playlist-name";
+                nameSpan.textContent = item.name || "Playlist name";
+
+                const dateSpan = document.createElement("span");
+                dateSpan.className = "playlist-date";
+                if (item.createdAt) {
+                    const d = new Date(item.createdAt);
+                    if (!isNaN(d)) {
+                        const day = d.getDate();
+                        const month = d.toLocaleString("en-US", {month: "short"});
+                        const year = d.getFullYear();
+                        const hour = d.getHours().toString().padStart(2, "0");
+                        const min = d.getMinutes().toString().padStart(2, "0");
+                        dateSpan.textContent = `${day} ${month} ${year}, ${hour}:${min}`;
+                    }
+                }
+
+                a.appendChild(nameSpan);
+                a.appendChild(dateSpan);
+                li.appendChild(a);
+                frag.appendChild(li);
+            });
+
+            // Clears existing children and inserts new ones without using innerHTML
+            playlistEl.replaceChildren(frag);
+        })
+        .catch(error => {
+            console.error("Error fetching playlist items:", error);
+        });
+
 }
 
 function navigate(path) {
@@ -81,13 +143,13 @@ function navigate(path) {
     app.innerHTML = "";
     if (template) {
         app.appendChild(template.content.cloneNode(true));
-        if(path[1] === "login"){
+        if (path[1] === "login") {
             initLogin();
         }
-        if(path === "/signup"){
+        if (path === "/signup") {
             initSignup();
         }
-        if(path[1] === "home"){
+        if (path[1] === "home") {
             initHome();
         }
     } else {
@@ -101,7 +163,7 @@ document.querySelectorAll("nav a").forEach(link => {
     link.addEventListener("click", e => {
         e.preventDefault(); // stop full reload
         const path = e.target.getAttribute("data-route");
-        if(!auth.isLoggedIn()){
+        if (!auth.isLoggedIn()) {
             navigate("/login");
             return;
         }
@@ -121,8 +183,8 @@ const initialPath = window.location.pathname;
 
 updateNavVisibility();
 
-if(auth.isLoggedIn()){
+if (auth.isLoggedIn()) {
     navigate(routes[initialPath] ? initialPath : "/home");
-}else{
+} else {
     navigate("/login");
 }
