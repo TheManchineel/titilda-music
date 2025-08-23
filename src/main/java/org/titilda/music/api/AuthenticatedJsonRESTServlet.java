@@ -16,7 +16,7 @@ import org.titilda.music.base.controller.Authentication;
 import org.titilda.music.base.database.DatabaseManager;
 import org.titilda.music.base.model.User;
 
-public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
+public abstract class AuthenticatedJsonRESTServlet extends HttpServlet implements BearerTokenInterface {
     protected final Iterator<String> getPathComponents(HttpServletRequest req) {
         String subPath = req.getRequestURI().substring(req.getServletPath().length());
         return subPath.isEmpty() ? Collections.emptyIterator() : Arrays.stream(subPath.split("/")).filter(s -> !s.isBlank()).iterator();
@@ -99,11 +99,8 @@ public abstract class AuthenticatedJsonRESTServlet extends HttpServlet {
     }
     // =================================================
 
-    private static User checkBearerToken(HttpServletRequest req) throws InvalidRequestException {
-        return Optional
-                .ofNullable(req.getHeader("Authorization"))
-                .filter(header -> header.toLowerCase().startsWith("bearer "))
-                .map(header -> header.substring("Bearer ".length()))
+    private User checkBearerToken(HttpServletRequest req) throws InvalidRequestException {
+        return getToken(req)
                 .flatMap(Authentication::validateToken)
                 .orElseThrow(() -> new InvalidRequestException("Invalid token", HttpServletResponse.SC_UNAUTHORIZED));
     }
