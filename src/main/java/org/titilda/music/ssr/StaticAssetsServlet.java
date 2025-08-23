@@ -19,11 +19,11 @@ import java.util.UUID;
 
 @WebServlet(urlPatterns = {"/static/*"})
 public final class StaticAssetsServlet extends BaseServlet {
-    private static void sendNotFound(HttpServletResponse res) throws ServletException, IOException {
+    private static void sendNotFound(HttpServletResponse res) throws IOException {
         res.sendRedirect("/error?error=not_found");
     }
 
-    private static void sendForbidden(HttpServletResponse res) throws ServletException, IOException {
+    private static void sendForbidden(HttpServletResponse res) throws IOException {
         res.sendRedirect("/login");
     }
 
@@ -33,7 +33,7 @@ public final class StaticAssetsServlet extends BaseServlet {
     private static class StaticAssetNotFoundException extends Exception {}
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String subpath = req.getRequestURI().substring("/static/".length());
         String[] resComponents = subpath.split("/");
         try {
@@ -54,7 +54,6 @@ public final class StaticAssetsServlet extends BaseServlet {
             try {
                 resId = UUID.fromString(resName);
             } catch (IllegalArgumentException _) {
-                // http://localhost:8080/static/songs/93b1bad4-a39c-479c-b81c-cefde655177f.mp3
                 throw new StaticAssetNotFoundException();
             }
 
