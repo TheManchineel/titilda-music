@@ -137,19 +137,20 @@ function initHome() {
 function navigate(path) {
     window.history.pushState({}, path, window.location.origin + path);
     path = path.split("/");
+    path.shift();
     console.log(path);
-    const template = routes["/" + (path[1] || "")];
+    const template = routes["/" + (path[0] || "")];
     const app = document.getElementById("app");
     app.innerHTML = "";
     if (template) {
         app.appendChild(template.content.cloneNode(true));
-        if (path[1] === "login") {
+        if (path[0] === "login") {
             initLogin();
         }
-        if (path === "/signup") {
+        if (path[0] === "signup") {
             initSignup();
         }
-        if (path[1] === "home") {
+        if (path[0] === "home") {
             initHome();
         }
     } else {
