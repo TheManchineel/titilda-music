@@ -2,6 +2,7 @@ package org.titilda.music.api.endpoints;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @WebServlet(urlPatterns = {"/api/songs"})
+@MultipartConfig
 public class SongsRESTServlet extends AuthenticatedJsonRESTServlet {
     // POST /api/songs
     @Override

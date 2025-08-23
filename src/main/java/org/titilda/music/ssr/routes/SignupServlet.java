@@ -22,21 +22,16 @@ public final class SignupServlet extends BaseGetServlet {
         String error = request.getParameter("error");
         if (error != null) {
             switch (error) {
-                case "invalid_data":
-                    variables.put("error", "Please fill in all required fields.");
-                    break;
-                case "failed_to_register":
-                    variables.put("error", "Registration failed. Please try again.");
-                    break;
-                case "user_already_exists":
-                    variables.put("error", "Username already exists. Please choose a different username.");
-                    break;
-                default:
+                case "invalid_data" -> variables.put("error", "Please fill in all required fields.");
+                case "failed_to_register" -> variables.put("error", "Registration failed. Please try again.");
+                case "user_already_exists" -> variables.put("error", "Username already exists. Please choose a different username.");
+                default -> {
                     try {
                         response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown error: " + error);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    } catch (IOException _) {
+                        // it's not my fault :/
                     }
+                }
             }
         }
         return variables;
