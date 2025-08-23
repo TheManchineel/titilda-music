@@ -23,14 +23,12 @@ public final class LoginServlet extends BaseGetServlet {
         String error = request.getParameter("error");
         if (error != null) {
             switch (error) {
-                case "invalid_credentials" -> {
-                    variables.put("error", "Invalid username or password.");
-                }
+                case "invalid_credentials" -> variables.put("error", "Invalid username or password.");
                 default -> {
                     try {
                         response.sendError(HttpServletResponse.SC_BAD_REQUEST , "Unknown error: " + error);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    } catch (IOException _) {
+                        // nothing to do here
                     }
                 }
             }

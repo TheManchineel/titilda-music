@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.database.DAO;
 import org.titilda.music.base.database.DatabaseManager;
+import org.titilda.music.base.exceptions.InternalErrorException;
 import org.titilda.music.base.model.Song;
 import org.titilda.music.base.model.User;
 import org.titilda.music.ssr.BaseAuthenticatedGetServlet;
@@ -26,7 +27,7 @@ public final class SongServlet extends BaseAuthenticatedGetServlet {
 
     @Override
     protected Map<String, Object> prepareTemplateVariables(HttpServletRequest request, HttpServletResponse response,
-            User user) {
+            User user) throws InternalErrorException {
         Map<String, Object> variables = new HashMap<>();
         variables.put("user", user);
 
@@ -63,8 +64,8 @@ public final class SongServlet extends BaseAuthenticatedGetServlet {
             }
 
             variables.put("song", song);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException _) {
+            throw new InternalErrorException("Internal server error");
         }
 
         return variables;
