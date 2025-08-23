@@ -155,7 +155,7 @@
                                     <targetPath>/</targetPath>
                                 </resource>
                             </webResources>
-                            <packagingExcludes>WEB-INF/classes/org/titilda/music/ssr,WEB-INF/classes/templates/**,csr/**</packagingExcludes>
+                            <packagingExcludes>WEB-INF/classes/org/titilda/music/ssr/**,WEB-INF/classes/templates/**,csr/**</packagingExcludes>
                         </configuration>
                     </plugin>
                 </plugins>
