@@ -1,0 +1,227 @@
+
+h1 {
+    margin-bottom: 0;
+}
+
+h2 {
+    margin-top: 24px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+}
+
+.meta {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+}
+
+.song-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+    width: min(1100px, calc(100vw - 32px));
+}
+
+.song-table {
+    border-collapse: separate;
+    border-spacing: 16px;
+    margin: 0 auto;
+    table-layout: fixed;
+    width: min(1100px, calc(100vw - 32px));
+    max-width: 1100px;
+}
+
+.song-table td {
+    padding: 0;
+    vertical-align: top;
+}
+
+.song-cell {
+    border: 1px solid #30363d;
+    background: #1f2328;
+    border-radius: 10px;
+    padding: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.song-cell:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .35);
+    background: #24292f;
+}
+
+.song-cell.invisible {
+    visibility: hidden;
+}
+
+.song-cover {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #14181d;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    overflow: hidden;
+}
+
+.song-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.song-title {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.song-artist {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem;
+}
+
+.nav-btn {
+    appearance: none;
+    border: 1px solid #30363d;
+    background: #1f2328;
+    color: #d0d7de;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    white-space: nowrap;
+    /* min-width: 120px; */
+    text-align: center;
+}
+
+.nav-btn:hover {
+    background: #24292f;
+}
+
+.nav-btn.invisible {
+    visibility: hidden;
+}
+
+.top {
+    margin-top: 24px;
+}
+
+.home-link {
+    color: #a0a0a0;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.home-link:hover {
+    text-decoration: underline;
+    color: #d0d7de;
+}
+
+/* TODO refactor this css, it's literally a dupe of home.html */
+.create-song-form {
+    background: #1f2328;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 32px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #f0f6fc;
+}
+
+.form-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    background: #0d1117;
+    color: #f0f6fc;
+    font-size: 0.9rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #1f6feb;
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
+}
+
+.form-submit {
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #238636;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.form-submit:hover {
+    background: #2ea043;
+}
+
+.optional-label {
+    color: #a0a0a0;
+    font-weight: 400;
+}
+
+.error-message {
+    background: #2d1516;
+    border: 1px solid #d1242f;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 16px;
+    color: #f85149;
+    font-size: 0.9rem;
+}
+
+.error-message p {
+    margin: 0;
+}

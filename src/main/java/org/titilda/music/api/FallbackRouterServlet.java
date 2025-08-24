@@ -22,8 +22,10 @@ public final class FallbackRouterServlet extends HttpServlet {
                     "/css/home.css",
                     "/css/styles.css",
                     "/css/login.css",
+                    "/css/playlist.css",
                     "/js/auth.js",
-                    "/js/index.js"
+                    "/js/index.js",
+                    "/js/playlist.js"
             ));
 
     private static void denyRequest(HttpServletResponse resp) {
