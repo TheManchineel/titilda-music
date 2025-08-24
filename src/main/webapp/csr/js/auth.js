@@ -16,7 +16,7 @@ export default class Auth {
     }
 
     /**
-     * Set the token in the local storage 
+     * Set the token in the local storage
      * - Use the login method to set the token
      * @param {string} token which is the token to set
      * @returns void
@@ -50,9 +50,9 @@ export default class Auth {
      * @returns true if the user is logged in, false otherwise
      */
     isLoggedIn() {
-        console.log("Checking if user is logged in. Token:", this.token);
+        //console.log("Checking if user is logged in. Token:", this.token);
         console.log("Full Name:", this.fullName);
-        console.log("Username:", this.username);
+        //console.log("Username:", this.username);
 
         return this.token !== null;
     }
@@ -63,7 +63,7 @@ export default class Auth {
      */
     getAuthHeader() {
         if (this.token) {
-            return { Authorization: "Bearer " + this.token };
+            return {Authorization: "Bearer " + this.token};
         }
         return {};
     }
@@ -77,8 +77,8 @@ export default class Auth {
     async login(username, password) {
         const response = await fetch("/api/auth/login", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({username, password}),
         });
         if (!response.ok) {
             const err = await response.json().catch(() => ({}));
@@ -90,7 +90,7 @@ export default class Auth {
         } else {
             throw new Error("Login failed (invalid token type or access token)");
         }
-        const userInfoResponse = await this.authenticatedFetch("/api/me", { method: "GET" });
+        const userInfoResponse = await this.authenticatedFetch("/api/me", {method: "GET"});
         if (userInfoResponse.ok) {
             const userInfo = await userInfoResponse.json();
             console.log(userInfoResponse.status, userInfo);
@@ -101,8 +101,8 @@ export default class Auth {
     async signup(username, password, fullName) {
         const response = await fetch("/api/auth/signup", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password, fullName }),
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({username, password, fullName}),
         });
         if (!response.ok) {
             const err = await response.json().catch(() => ({}));
@@ -115,7 +115,7 @@ export default class Auth {
             throw new Error("Signup failed (invalid token type or access token)");
         }
 
-        const userInfoResponse = await this.authenticatedFetch("/api/me", { method: "GET" });
+        const userInfoResponse = await this.authenticatedFetch("/api/me", {method: "GET"});
         if (userInfoResponse.ok) {
             const userInfo = await userInfoResponse.json();
             console.log(userInfoResponse.status, userInfo);
@@ -165,7 +165,7 @@ export default class Auth {
             ...(options.headers || {}),
             ...this.getAuthHeader(),
         };
-        return fetch(url, { ...options, headers }).then(
+        return fetch(url, {...options, headers}).then(
             response => {
                 if (response.status === 401) {
                     this.logout();
@@ -174,6 +174,21 @@ export default class Auth {
                 return response;
             }
         );
+    }
+
+    /**
+     * Fetch a blob with authentication and return a URL object
+     * @param {String} url the url to fetch
+     * @param {Object} options the options to pass to the fetch call
+     * @returns {Promise<String>} a promise that resolves to a URL object
+     */
+    authenticatedBlobFetch(url, options = {}) {
+        return this.authenticatedFetch(url, options)
+            .then(response => response.blob())
+            .then(blob => URL.createObjectURL(blob))
+            .catch(err => {
+                console.error("Failed to load artwork:", err);
+            });
     }
 
     /**
