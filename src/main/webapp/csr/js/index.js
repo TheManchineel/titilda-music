@@ -97,7 +97,7 @@ async function createSongFromForm(form) {
     }
 }
 
-async function createPlaylist(playlistName, selectedSongs = []) {
+async function createPlaylist(playlistName, selectedSongs) {
     const response = await auth.authenticatedFetch("/api/playlists", {
         method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
             name: playlistName, songs: selectedSongs
@@ -109,6 +109,80 @@ async function createPlaylist(playlistName, selectedSongs = []) {
     }
     const newPlaylistUrl = await response.json().then(data => `/playlists/${data.id}`).catch(() => "/home");
     navigate(newPlaylistUrl);
+}
+
+async function addSongsToPlaylist(playlistId, selectedSongs) {
+    const response = await auth.authenticatedFetch(`/api/playlists/${playlistId}/songs`, {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(selectedSongs)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Playlist update failed");
+    }
+    navigate(`/playlists/${playlistId}`);
+}
+
+function createSongSelectionForm(existingId = null) {
+    const title = existingId ? "Add songs to playlist" : "Create a new playlist";
+
+    const selectionFormTemplate = document.getElementById("song-selection-form");
+    const selectionFormSection = selectionFormTemplate.content.cloneNode(true).firstElementChild;
+    const selectionForm = selectionFormSection.querySelector("form");
+    selectionFormSection.getElementsByClassName("form-title")[0].textContent = title;
+
+    const songSourceUrl = `/api/songs${existingId ? "?excludePlaylist=" + existingId : ""}`;
+    const playlistUpdateCallback = existingId ? addSongsToPlaylist : createPlaylist;
+
+    const allSongs = auth.authenticatedFetch(songSourceUrl, {method: "GET"}).then(response => response.json());
+
+    if (existingId) selectionForm.getElementsByClassName("playlist-name-section")[0].remove();
+
+    allSongs.then(songs => {
+        if (songs.length === 0) {
+            selectionForm.getElementsByClassName("no-songs-available-section")[0].classList.remove("hidden");
+        } else {
+            const checkboxesGroup = selectionForm.getElementsByClassName("song-select-main-form-group");
+            const selectableEntryTemplate = document.getElementById("song-selectable-entry");
+            // populate checkboxes:
+            songs.forEach(song => {
+                const checkboxEntry = selectableEntryTemplate.content.cloneNode(true).firstElementChild;
+                checkboxEntry.querySelector("input").value = song.id;
+                checkboxEntry.getElementsByClassName("song-display-name").item(0).textContent = song.title + " — " + song.artist;
+                checkboxesGroup.item(0).appendChild(checkboxEntry);
+            })
+        }
+    });
+
+    selectionForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const selectedSongs = [];
+        const checkboxes = selectionForm.querySelectorAll("input[type='checkbox']");
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedSongs.push(checkbox.value);
+            }
+        });
+
+        let playlistName;
+
+        if (!existingId) {
+            playlistName = selectionForm.playlistName.value;
+            if (playlistName === "") {
+                reportErrorToForm(selectionForm, new Error("Playlist name cannot be empty"));
+                return;
+            }
+        }
+
+        const playlistKey = existingId || playlistName;
+
+        try {
+            await playlistUpdateCallback(playlistKey, selectedSongs);
+        } catch (err) {
+            reportErrorToForm(selectionForm, err);
+        }
+    })
+
+    return selectionFormSection;
 }
 
 function initHome() {
@@ -203,50 +277,7 @@ function initHome() {
             reportErrorToForm(createSongForm, err);
         }
     });
-
-    const selectionFormTemplate = document.getElementById("song-selection-form");
-    const selectionFormSection = selectionFormTemplate.content.cloneNode(true).firstElementChild;
-    const selectionForm = selectionFormSection.querySelector("form");
-    selectionFormSection.getElementsByClassName("form-title")[0].textContent = "Create a new playlist";
-
-    const allSongs = auth.authenticatedFetch("/api/songs", {method: "GET"}).then(response => response.json());
-
-    if (allSongs.length === 0) {
-        selectionForm.getElementsByClassName("no-songs-available-section")[0].classList.remove("hidden");
-    } else {
-        const checkboxesGroup = selectionForm.getElementsByClassName("song-select-main-form-group");
-        const selectableEntryTemplate = document.getElementById("song-selectable-entry");
-        // populate checkboxes:
-        allSongs.then(songs => {
-            songs.forEach(song => {
-                const checkboxEntry = selectableEntryTemplate.content.cloneNode(true).firstElementChild;
-                checkboxEntry.querySelector("input").value = song.id;
-                checkboxEntry.getElementsByClassName("song-display-name").item(0).textContent = song.title + " — " + song.artist;
-                checkboxesGroup.item(0).appendChild(checkboxEntry);
-            })
-        })
-    }
-
-    selectionForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const selectedSongs = [];
-        const checkboxes = selectionForm.querySelectorAll("input[type='checkbox']");
-        checkboxes.forEach(checkbox => {
-            if (checkbox.checked) {
-                selectedSongs.push(checkbox.value);
-            }
-        });
-        const playlistName = selectionForm.playlistName.value;
-        if (playlistName === "") {
-            reportErrorToForm(selectionForm, new Error("Playlist name cannot be empty"));
-            return;
-        }
-        try {
-            await createPlaylist(playlistName, selectedSongs);
-        } catch (err) {
-            reportErrorToForm(selectionForm, err);
-        }
-    })
+    const selectionFormSection = createSongSelectionForm();
 
     const leftSection = document.getElementById("left-section");
     leftSection.appendChild(selectionFormSection);
@@ -390,6 +421,9 @@ function initPlaylist(playlistId, page) {
             console.error("Error loading playlist:", err);
             navigate("/404");
         });
+    const addSongsToPlaylistForm = createSongSelectionForm(playlistId);
+    document.getElementById("add-song-form").appendChild(addSongsToPlaylistForm);
+
 }
 
 function navigate(path) {
