@@ -450,7 +450,7 @@ const initialPath = window.location.pathname;
 updateNavVisibility();
 
 if (auth.isLoggedIn()) {
-    navigate(routes[initialPath] ? initialPath : "/home");
+    navigate(initialPath);
 } else {
     navigate("/login");
 }
