@@ -252,9 +252,14 @@ function initHome() {
     leftSection.appendChild(selectionFormSection);
 }
 
+function isValidUUID(uuid) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+}
+
 function initPlaylist(playlistId, page) {
-    if (!playlistId) {
-        navigate("/home");
+    if (!playlistId || !isValidUUID(playlistId)) {
+        navigate("/404");
         return;
     }
 
@@ -264,6 +269,13 @@ function initPlaylist(playlistId, page) {
     const playlist = new Playlist(auth, playlistId);
     playlist.load()
         .then(() => {
+
+            if (!playlist.getName()) {
+                // Playlist doesn't exist or user doesn't have access
+                navigate("/404");
+                return;
+            }
+
             const noSongsEl = document.getElementById("no-songs-message");
             const prevBtn = document.getElementById("left-button");
             const nextBtn = document.getElementById("right-button");
