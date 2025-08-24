@@ -505,7 +505,12 @@ function createSongElement(playlist, song) {
     const td = document.createElement("td");
     const a = document.createElement("a");
     a.className = "song-cell";
-    //todo: add link to song page
+    
+    a.href = "#";
+    a.addEventListener("click", (e) => {
+        e.preventDefault();
+        navigate("/songs/" + song.id);
+    });
 
     const span1 = document.createElement("span");
     span1.className = "song-title";
