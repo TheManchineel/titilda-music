@@ -100,6 +100,10 @@ export default class Playlist {
         return this.#songs.slice(start, start + 5);
     }
 
+    getAllSongs() {
+        return this.#songs;
+    }
+
     getUUID() {
         return this.#uuid;
     }

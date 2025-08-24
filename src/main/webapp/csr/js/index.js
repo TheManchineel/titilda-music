@@ -185,6 +185,185 @@ function createSongSelectionForm(existingId = null) {
     return selectionFormSection;
 }
 
+function createReorderButton(playlistId) {
+    const reorderBtn = document.createElement("button");
+    reorderBtn.className = "btn reorder-btn";
+    reorderBtn.type = "button";
+    reorderBtn.textContent = "Reorder";
+    reorderBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openEmptyModal(playlistId);
+    });
+    return reorderBtn;
+}
+
+async function openEmptyModal(playlistId ) {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+
+    const modal = document.createElement("div");
+    modal.className = "modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+
+    const header = document.createElement("div");
+    header.className = "modal-header";
+
+
+
+    const title = document.createElement("h3");
+    title.textContent = "Reorder";
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "modal-close";
+    closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.textContent = "×";
+
+    const closeModal = () => {
+        // unlock scrolling and remove modal
+        document.body.style.overflow = "";
+        overlay.remove();
+    };
+
+    closeBtn.addEventListener("click", closeModal);
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeModal();
+    });
+
+    const body = document.createElement("div");
+    body.className = "modal-body";
+    // Intentionally empty for now
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    modal.appendChild(header);
+    modal.appendChild(body);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    // Lock scrolling
+    document.body.style.overflow = "hidden";
+
+    // Load playlist object and aggregate all songs for in-function use
+    try {
+        const playlist = new Playlist(auth, playlistId);
+        await playlist.load();
+        const allSongs = playlist.getAllSongs();
+        const playlistName = playlist.getName();
+        if (playlistName) {
+            title.textContent = "Reorder " + playlistName;
+        }
+
+        // Build draggable list inside the modal body
+        const list = document.createElement("ul");
+        list.className = "dnd-list";
+
+        allSongs.forEach(song => {
+            const li = document.createElement("li");
+            li.className = "dnd-item";
+            li.draggable = true;
+            li.dataset.songId = song.id;
+            li.textContent = `${song.title || "Unknown title"} — ${song.artist || "Unknown artist"}`;
+
+            li.addEventListener("dragstart", (ev) => {
+                li.classList.add("dragging");
+                if (ev.dataTransfer) {
+                    ev.dataTransfer.effectAllowed = "move";
+                    ev.dataTransfer.setData("text/plain", song.id);
+                }
+            });
+
+            li.addEventListener("dragend", () => {
+                li.classList.remove("dragging");
+            });
+
+            list.appendChild(li);
+        });
+
+
+        /**
+         *
+         * Helper function to get the element after which to drop the dragged element.
+         *
+         * This is used to determine the order of the songs in the playlist.
+         *
+         * It calculates the offset of the dragged element from the top of the container
+         * and returns the element after which to drop the dragged element.
+         *
+         * The element with the smallest offset is the one after which to drop the dragged element.
+         *
+         * If the dragged element is the first element, the element after which to drop the dragged element is null.
+         *
+         * @param {HTMLElement} container - The container element holding the draggable items.
+         *
+         * @param {number} y - The vertical mouse position (clientY) during the drag event.
+         *
+         * @returns {HTMLElement|null} The element after which to drop the dragged element, or null if it should be last.
+         *
+         */
+        const getDragAfterElement = (container, y) => {
+            const elements = [...container.querySelectorAll('.dnd-item:not(.dragging)')];
+            return elements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+        };
+
+        list.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const dragging = list.querySelector('.dnd-item.dragging');
+            if (!dragging) return;
+            const afterElement = getDragAfterElement(list, e.clientY);
+            if (afterElement == null) {
+                list.appendChild(dragging);
+            } else {
+                list.insertBefore(dragging, afterElement);
+            }
+        });
+
+        let currentOrder = allSongs.map(s => s.id); // Track current order
+
+        list.addEventListener("drop", (e) => {
+            e.preventDefault();
+            // Update current order after each drop
+            currentOrder = [...list.querySelectorAll('.dnd-item')].map(el => el.dataset.songId);
+        });
+
+        // Add save button
+        const saveBtn = document.createElement("button");
+        saveBtn.className = "btn save-btn";
+        saveBtn.type = "button";
+        saveBtn.textContent = "Save Changes";
+        saveBtn.addEventListener("click", async () => {
+            try {
+                const response = await auth.authenticatedFetch(`/api/playlists/${playlistId}/song-order`, {
+                    method: "PUT",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(currentOrder)
+                });
+                if (!response.ok) {
+                    throw new Error("Failed to save song order");
+                }
+                console.log("Song order saved successfully");
+                closeModal();
+            } catch (err) {
+                console.error("Error saving song order:", err);
+            }
+        });
+
+        body.appendChild(list);
+        body.appendChild(saveBtn);
+    } catch (err) {
+        console.error("Failed to load playlist for reorder modal:", err);
+    }
+}
+
 function initHome() {
     const fullNameEl = document.getElementById("full-name");
     if (!fullNameEl) return;
@@ -244,6 +423,7 @@ function initHome() {
                 a.appendChild(nameSpan);
                 a.appendChild(dateSpan);
                 li.appendChild(a);
+                li.appendChild(createReorderButton(item.id));
                 frag.appendChild(li);
             });
 
