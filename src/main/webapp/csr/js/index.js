@@ -4,9 +4,11 @@ const auth = new Auth();
 
 function updateNavVisibility() {
     const navEl = document.getElementById("nav");
+    const usernameEl = document.getElementById("nav-username");
     if (!navEl) return;
     if (auth.isLoggedIn()) {
         navEl.classList.remove("hidden");
+        usernameEl.textContent = auth.getUsername() || "User";
     } else {
         navEl.classList.add("hidden");
     }

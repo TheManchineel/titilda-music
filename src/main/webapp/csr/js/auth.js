@@ -30,14 +30,29 @@ export default class Auth {
         }
     }
 
+    setPersonalInfo(fullName, username) {
+        this.fullName = fullName;
+        this.username = username;
+        if (fullName) {
+            localStorage.setItem(Auth.FULL_NAME_KEY, fullName);
+        } else {
+            localStorage.removeItem(Auth.FULL_NAME_KEY);
+        }
+        if (username) {
+            localStorage.setItem(Auth.USERNAME_KEY, username);
+        } else {
+            localStorage.removeItem(Auth.USERNAME_KEY);
+        }
+    }
+
     /**
      * Check if the user is logged in
      * @returns true if the user is logged in, false otherwise
      */
     isLoggedIn() {
-        //console.log("Checking if user is logged in. Token:", this.token);
-        //console.log("Full Name:", this.fullName);
-        //console.log("Username:", this.username);
+        console.log("Checking if user is logged in. Token:", this.token);
+        console.log("Full Name:", this.fullName);
+        console.log("Username:", this.username);
 
         return this.token !== null;
     }
@@ -75,6 +90,12 @@ export default class Auth {
         } else {
             throw new Error("Login failed (invalid token type or access token)");
         }
+        const userInfoResponse = await this.authenticatedFetch("/api/me", { method: "GET" });
+        if (userInfoResponse.ok) {
+            const userInfo = await userInfoResponse.json();
+            console.log(userInfoResponse.status, userInfo);
+            this.setPersonalInfo(userInfo.fullName, userInfo.username);
+        }
     }
 
     async signup(username, password, fullName) {
@@ -98,14 +119,7 @@ export default class Auth {
         if (userInfoResponse.ok) {
             const userInfo = await userInfoResponse.json();
             console.log(userInfoResponse.status, userInfo);
-            this.fullName = userInfo.fullName;
-            this.username = userInfo.username;
-            if (this.fullName) {
-                localStorage.setItem(Auth.FULL_NAME_KEY, this.fullName);
-            }
-            if (this.username) {
-                localStorage.setItem(Auth.USERNAME_KEY, this.username);
-            }
+            this.setPersonalInfo(userInfo.fullName, userInfo.username);
         } else {
             const errorBody = await userInfoResponse.text().catch(() => "");
             console.log(userInfoResponse.status, errorBody);
@@ -120,10 +134,7 @@ export default class Auth {
      */
     logout() {
         this.setToken(null);
-        this.fullName = null;
-        this.username = null;
-        localStorage.removeItem(Auth.FULL_NAME_KEY);
-        localStorage.removeItem(Auth.USERNAME_KEY);
+        this.setPersonalInfo(null, null);
         window.location.href = "/login";
     }
 
@@ -176,14 +187,6 @@ export default class Auth {
     /**
      * Get the username of the logged in user
      * @returns {String |null}
-     */
-    getusername() {
-        return this.username;
-    }
-
-    /**
-     * Preferred-casing alias for username getter
-     * @returns {String | null}
      */
     getUsername() {
         return this.username;
