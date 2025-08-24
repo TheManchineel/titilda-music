@@ -185,12 +185,35 @@
 
 
 <template id="playlist">
-    <h2>Playlist</h2>
-    <form>
-        <label>Name: <input type="text"></label><br>
-        <label>Email: <input type="email"></label><br>
-        <button type="submit">Send</button>
-    </form>
+    <main class="container">
+        <div>
+            <h1 id="playlist-name"></h1>
+            <p class="meta"><span id="playlist-creation-date"></span></p>
+        </div>
+
+        <div id="no-songs-message">
+        </div>
+
+        <div class="song-row">
+            <a id="left-button" class="nav-btn">&lt;</a>
+
+            <table class="song-table">
+                <colgroup>
+                    <col style="width:20%"/>
+                    <col style="width:20%"/>
+                    <col style="width:20%"/>
+                    <col style="width:20%"/>
+                    <col style="width:20%"/>
+                </colgroup>
+                <tr id="song-table-row">
+                </tr>
+            </table>
+
+            <a id="right-button" class="nav-btn">&gt;</a>
+        </div>
+
+        <div id="add-song-form"></div>
+    </main>
 </template>
 
 </body>

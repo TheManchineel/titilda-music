@@ -1,4 +1,5 @@
 import Auth from "./auth.js";
+import Playlist from "./playlist.js";
 
 const auth = new Auth();
 
@@ -18,7 +19,7 @@ const routes = {
     "/login": document.getElementById("login"),
     "/signup": document.getElementById("signup"),
     "/home": document.getElementById("home"),
-    "/playlist": document.getElementById("playlist"),
+    "/playlists": document.getElementById("playlist"),
 };
 
 function initLogin() {
@@ -128,6 +129,11 @@ function initHome() {
                 const li = document.createElement("li");
                 const a = document.createElement("a");
                 a.className = "playlist-btn";
+                a.href = "#";
+                a.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    navigate("/playlists/" + item.id);
+                });
 
                 const nameSpan = document.createElement("span");
                 nameSpan.className = "playlist-name";
@@ -165,14 +171,16 @@ function initHome() {
 
     auth.authenticatedFetch("/api/genres", {method: "GET"})
         .then(response => response.json())
-        .then(genres => {genres.forEach(
-            genre => {
-                const option = document.createElement("option");
-                option.value = genre;
-                option.textContent = genre;
-                createSongForm.genre.appendChild(option);
-            }
-        )});
+        .then(genres => {
+            genres.forEach(
+                genre => {
+                    const option = document.createElement("option");
+                    option.value = genre;
+                    option.textContent = genre;
+                    createSongForm.genre.appendChild(option);
+                }
+            )
+        });
 
     createSongForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -183,6 +191,140 @@ function initHome() {
             reportErrorToForm(createSongForm, err);
         }
     })
+}
+
+function initPlaylist(playlistId, page) {
+    console.log("🚀 initPlaylist called with playlistId:", playlistId, "page:", page);
+
+    if (!playlistId) {
+        console.log("🚀 No playlistId, navigating to home");
+        navigate("/home");
+        return;
+    }
+
+    page = parseInt(page);
+    if (isNaN(page) || page < 0) page = 0;
+    console.log("🚀 Parsed page:", page);
+
+    const playlist = new Playlist(auth, playlistId);
+    playlist.load()
+        .then(() => {
+            const noSongsEl = document.getElementById("no-songs-message");
+            const prevBtn = document.getElementById("left-button");
+            const nextBtn = document.getElementById("right-button");
+
+            if (prevBtn) {
+                // Use visibility instead of display to preserve layout
+                prevBtn.style.visibility = page <= 0 ? "hidden" : "visible";
+                prevBtn.onclick = () => {
+                    if (page > 0) {
+                        navigate(`/playlists/${playlist.getUUID()}/${page - 1}`);
+                    }
+                };
+            }
+
+            if (nextBtn) {
+                const totalPages = playlist.getNumberOfPages();
+                // Use visibility instead of display to preserve layout
+                nextBtn.style.visibility = page >= totalPages - 1 ? "hidden" : "visible";
+                nextBtn.onclick = () => {
+                    if (page < totalPages - 1) {
+                        navigate(`/playlists/${playlist.getUUID()}/${page + 1}`);
+                    }
+                };
+            }
+
+
+
+            const playlistTitleEl = document.getElementById("playlist-name");
+            if (playlistTitleEl) {
+                playlistTitleEl.textContent = playlist.getName() || "Playlist";
+            }
+
+            const metaSpan = document.querySelector(".meta span");
+            if (metaSpan) {
+                const createdAt = playlist.getCreatedAt() ? new Date(playlist.getCreatedAt()) : null;
+                let createdAtStr = "";
+                if (createdAt && !isNaN(createdAt)) {
+                    const day = createdAt.getDate();
+                    const month = createdAt.toLocaleString("en-US", {month: "short"});
+                    const year = createdAt.getFullYear();
+                    const hour = createdAt.getHours().toString().padStart(2, "0");
+                    const min = createdAt.getMinutes().toString().padStart(2, "0");
+                    createdAtStr = `${day} ${month} ${year}, ${hour}:${min}`;
+                }
+                metaSpan.textContent = `Created at: ${createdAtStr}`;
+            }
+
+            if(playlist.getSongs().length === 0){
+                noSongsEl.classList.remove("hidden");
+                noSongsEl.textContent = "No songs in this playlist.";
+                return;
+            } else {
+                noSongsEl.classList.add("hidden");
+            }
+
+            // Access song data here:
+            const allSongs = playlist.getSongs(); // Gets all songs
+            const songsForCurrentPage = playlist.getSongs(page); // Gets songs for specific page (5 per page)
+            const totalPages = playlist.getNumberOfPages();
+
+            console.log("🚀 All songs:", allSongs);
+
+            const songRowEl = document.getElementById("song-table-row");
+
+            const frag = document.createDocumentFragment();
+
+            songsForCurrentPage.forEach(song => {
+
+                const td = document.createElement("td");
+
+                const a = document.createElement("a");
+
+                a.className = "song-cell";
+                //todo: add link to song page
+
+                const span1 = document.createElement("span");
+
+                span1.className = "song-title";
+                span1.textContent = song.title || "Unknown title";
+
+                const span2 = document.createElement("span");
+                span2.className = "song-artist";
+                span2.textContent = song.artist || "Unknown artist";
+
+                const div = document.createElement("div");
+                div.className = "song-cover";
+
+                const img = document.createElement("img");
+                img.alt = song.title || "Song cover";
+                console.log("🚀 Song artwork URL:", song.artworkUrl);
+                img.src = auth.authenticatedFetch(song.artworkUrl, {method: "GET"})
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const blobUrl = URL.createObjectURL(blob);
+                        img.src = blobUrl;
+                    })
+                    .catch(err => {
+                        console.error("Failed to load artwork:", err);
+                    });
+
+                div.appendChild(img);
+                a.appendChild(div);
+                a.appendChild(span1);
+                a.appendChild(span2);
+                td.appendChild(a);
+                frag.appendChild(td);
+            });
+
+            songRowEl.replaceChildren(frag);
+
+        }).catch(
+        err => {
+            console.error("Error loading playlist:", err);
+            const app = document.getElementById("app");
+        }
+    )
 }
 
 function navigate(path) {
@@ -202,6 +344,9 @@ function navigate(path) {
         }
         if (pathComponents[0] === "home") {
             initHome();
+        }
+        if (pathComponents[0] === "playlists") {
+            initPlaylist(pathComponents[1], pathComponents[2] || null);
         }
     } else {
         app.innerHTML = "<h2>404</h2><p>Page not found.</p>";
