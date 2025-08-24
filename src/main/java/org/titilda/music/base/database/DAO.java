@@ -451,7 +451,7 @@ public final class DAO {
      * @return Optional containing the Song object if found, empty otherwise.
      * @throws SQLException If there is an error during the database operation.
      */
-    public Optional<Song> getSongById(UUID songId) throws SQLException {
+    public Optional<Song> getSongById(UUID songId) {
         String sql = "SELECT * FROM songs WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setObject(1, songId);
@@ -460,6 +460,9 @@ public final class DAO {
                     return Optional.of(mapResultSetToSong(rs));
                 }
             }
+        }
+        catch (SQLException _) {
+            return Optional.empty();
         }
         return Optional.empty();
     }

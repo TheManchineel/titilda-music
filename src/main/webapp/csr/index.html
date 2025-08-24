@@ -254,6 +254,52 @@
     </main>
 </template>
 
+<template id="song">
+    <div class="top">
+        <a class="home-link">&lt Home</a>
+    </div>
+
+    <div class="song-content">
+        <h1 class="player-song-title"></h1>
+        <p class="player-song-artist"></p>
+
+        <div class="artwork-container">
+            <div class="artwork">
+                <img class="player-song-artwork" />
+            </div>
+        </div>
+
+        <div class="audio-player">
+            <audio controls autoplay>
+                <source class="player-song-audio">
+            </audio>
+        </div>
+
+        <div class="song-details">
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <td class="player-song-title"></td>
+                </tr>
+                <tr>
+                    <th>Artist</th>
+                    <td class="player-song-artist"></td>
+                </tr>
+                <tr>
+                    <th>Album</th>
+                    <td>
+                        <span class="player-album-title-with-year"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Genre</th>
+                    <td class="player-song-genre"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</template>
+
 <template id="404">
     <div class="error-page" style="text-align: center; padding: 50px;">
         <h1>404 - Page Not Found</h1>

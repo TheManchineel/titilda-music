@@ -20,6 +20,7 @@ const routes = {
     "/signup": document.getElementById("signup"),
     "/home": document.getElementById("home"),
     "/playlists": document.getElementById("playlist"),
+    "/songs": document.getElementById("song")
 };
 
 function initLogin() {
@@ -423,6 +424,36 @@ function initPlaylist(playlistId, page) {
         });
 }
 
+
+function initSong(songId) {
+    if (!songId || !isValidUUID(songId)) {
+        navigate("/404");
+        return;
+    }
+    auth.authenticatedFetch(`/api/songs/${songId}`, {method: "GET"})
+        .then(response => response.json())
+        .then(song => {
+            document.querySelectorAll(".player-song-title").forEach(el => el.textContent = song.title);
+            document.querySelectorAll(".player-song-artist").forEach(el => el.textContent = song.artist);
+            document.querySelectorAll(".player-album-title-with-year").forEach(el => el.textContent = `${song.album} (${song.releaseYear})`)
+            document.querySelectorAll(".player-song-genre").forEach(el => el.textContent = song.genre);
+            const audioSource = document.querySelector(".player-song-audio");
+            audioSource.type = song.audioMimeType;
+            auth.authenticatedBlobFetch(song.audioUrl).then(blob => {
+                audioSource.src = URL.createObjectURL(blob);
+                audioSource.parentElement.load();
+            });
+            auth.authenticatedBlobFetch(song.artworkUrl).then(blob => {
+                document.querySelector(".player-song-artwork").src = URL.createObjectURL(blob);
+            });
+            document.querySelector(".home-link").addEventListener("click", () => {
+                navigate("/home");
+            })
+        })
+}
+
+
+// TODO: refactor this, by creating a Route class and using it to map both the template and the init function
 function navigate(path) {
     if (path === "/") {
         path = "/home";
@@ -447,6 +478,9 @@ function navigate(path) {
         }
         if (pathComponents[0] === "playlists") {
             initPlaylist(pathComponents[1], pathComponents[2] || null);
+        }
+        if (pathComponents[0] === "songs") {
+            initSong(pathComponents[1]);
         }
     } else {
         // 404

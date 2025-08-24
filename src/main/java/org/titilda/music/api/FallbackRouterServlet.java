@@ -23,6 +23,7 @@ public final class FallbackRouterServlet extends HttpServlet {
                     "/css/styles.css",
                     "/css/login.css",
                     "/css/playlist.css",
+                    "/css/songs.css",
                     "/js/auth.js",
                     "/js/index.js",
                     "/js/playlist.js"
