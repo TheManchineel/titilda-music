@@ -198,6 +198,19 @@ function createReorderButton(playlistId) {
     return reorderBtn;
 }
 
+/**
+ * Opens a modal dialog for reordering songs in a playlist.
+ * 
+ * This function creates a modal overlay with a draggable list of songs from the specified playlist.
+ * Users can drag and drop songs to reorder them, and save the new order to the server.
+ * 
+ * @param {string} playlistId - The UUID of the playlist to reorder songs for
+ * @returns {Promise<void>} A promise that resolves when the modal is fully loaded
+ * 
+ * @example
+ * // Open reorder modal for playlist with ID "123e4567-e89b-12d3-a456-426614174000"
+ * await openEmptyModal("123e4567-e89b-12d3-a456-426614174000");
+ */
 async function openEmptyModal(playlistId ) {
     const overlay = document.createElement("div");
     overlay.className = "modal-overlay";
@@ -283,30 +296,37 @@ async function openEmptyModal(playlistId ) {
 
 
         /**
-         *
-         * Helper function to get the element after which to drop the dragged element.
-         *
-         * This is used to determine the order of the songs in the playlist.
-         *
-         * It calculates the offset of the dragged element from the top of the container
-         * and returns the element after which to drop the dragged element.
-         *
-         * The element with the smallest offset is the one after which to drop the dragged element.
-         *
-         * If the dragged element is the first element, the element after which to drop the dragged element is null.
-         *
-         * @param {HTMLElement} container - The container element holding the draggable items.
-         *
-         * @param {number} y - The vertical mouse position (clientY) during the drag event.
-         *
-         * @returns {HTMLElement|null} The element after which to drop the dragged element, or null if it should be last.
-         *
+         * Helper function to find the best insertion point for a dragged element.
+         * 
+         * This is the trickiest part of the drag-and-drop logic. It determines where to insert
+         * the dragged item based on the mouse cursor position relative to other items.
+         * 
+         * The algorithm works by:
+         * 1. Finding all non-dragging elements (excluding the one being dragged)
+         * 2. For each element, calculating the vertical offset from cursor to element center
+         * 3. Finding the element with the smallest negative offset (closest above cursor)
+         * 4. Returning that element as the insertion point
+         * 
+         * If no element is found (cursor is at the very top), returns null (insert at beginning)
+         * If cursor is below all elements, returns null (append to end)
+         * 
+         * @param {HTMLElement} container - The container element holding the draggable items
+         * @param {number} y - The vertical mouse position (clientY) during the drag event
+         * @returns {HTMLElement|null} The element after which to drop, or null for beginning/end
          */
         const getDragAfterElement = (container, y) => {
+            // Get all items except the one being dragged
             const elements = [...container.querySelectorAll('.dnd-item:not(.dragging)')];
+            
+            // Find the element closest to the cursor position
             return elements.reduce((closest, child) => {
                 const box = child.getBoundingClientRect();
+                // Calculate offset from cursor to center of this element
+                // Negative offset means cursor is above element center
                 const offset = y - box.top - box.height / 2;
+                
+                // We want the element with the smallest negative offset (closest above cursor)
+                // but still negative (cursor is above its center)
                 if (offset < 0 && offset > closest.offset) {
                     return { offset, element: child };
                 } else {
@@ -315,45 +335,57 @@ async function openEmptyModal(playlistId ) {
             }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
         };
 
+        // Handle real-time reordering during drag
         list.addEventListener("dragover", (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Required to allow drops
             const dragging = list.querySelector('.dnd-item.dragging');
             if (!dragging) return;
+            
+            // Find the best insertion point based on cursor position
             const afterElement = getDragAfterElement(list, e.clientY);
+            
+            // Move the dragging element to the new position
             if (afterElement == null) {
+                // Cursor is at the very top or bottom - append to end
                 list.appendChild(dragging);
             } else {
+                // Insert before the element we found
                 list.insertBefore(dragging, afterElement);
             }
         });
 
-        let currentOrder = allSongs.map(s => s.id); // Track current order
+        // Track the current order of songs for saving
+        let currentOrder = allSongs.map(s => s.id); // Initialize with original order
 
+        // Update our order tracking whenever a drop completes
         list.addEventListener("drop", (e) => {
             e.preventDefault();
-            // Update current order after each drop
+            // Read the new order from the DOM and update our tracking variable
+            // This ensures currentOrder always reflects the actual visual order
             currentOrder = [...list.querySelectorAll('.dnd-item')].map(el => el.dataset.songId);
         });
 
-        // Add save button
+        // Add save button to persist the new order
         const saveBtn = document.createElement("button");
         saveBtn.className = "btn save-btn";
         saveBtn.type = "button";
         saveBtn.textContent = "Save Changes";
         saveBtn.addEventListener("click", async () => {
             try {
+                // Send the current order to the server
                 const response = await auth.authenticatedFetch(`/api/playlists/${playlistId}/song-order`, {
                     method: "PUT",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify(currentOrder)
+                    body: JSON.stringify(currentOrder) // Send array of song IDs in new order
                 });
                 if (!response.ok) {
                     throw new Error("Failed to save song order");
                 }
                 console.log("Song order saved successfully");
-                closeModal();
+                closeModal(); // Close modal on successful save
             } catch (err) {
                 console.error("Error saving song order:", err);
+                // Note: We could add user-facing error handling here
             }
         });
 
