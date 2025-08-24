@@ -61,12 +61,8 @@ public final class PlaylistsWildcardRESTServlet extends AuthenticatedJsonRESTSer
     protected JsonNode processApiGet(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
         Iterator<String> iter = getPathComponents(req);
         String playlistIdStr = getNextPathComponent(iter);
-        if(!getNextPathComponent(iter).equals("songs")){
-            throw new InvalidRequestException("Not found", HttpServletResponse.SC_NOT_FOUND);
-        }
-        ensurePathComponentsFinished(iter);
-
         UUID playlistId;
+
         try {
             playlistId = UUID.fromString(playlistIdStr);
         } catch (IllegalArgumentException _) {
@@ -74,10 +70,21 @@ public final class PlaylistsWildcardRESTServlet extends AuthenticatedJsonRESTSer
         }
 
         DAO dao = new DAO(dbConnection);
+
         Playlist playlist = dao.getPlaylistById(playlistId)
                 .filter(p -> p.getOwner().equals(user.getUsername()))
                 .orElseThrow(() -> new InvalidRequestException("Playlist not found", HttpServletResponse.SC_NOT_FOUND));
 
+
+        if (!iter.hasNext()) {
+            // return only the metadata
+            return new ObjectMapper().valueToTree(playlist);
+        }
+
+        if(!getNextPathComponent(iter).equals("songs")){
+            throw new InvalidRequestException("Not found", HttpServletResponse.SC_NOT_FOUND);
+        }
+        ensurePathComponentsFinished(iter);
         List<Song> songs = dao.getSongsInPlaylist(playlist.getId());
         return new ObjectMapper().valueToTree(songs);
     }
