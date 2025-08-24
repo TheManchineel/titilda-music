@@ -384,6 +384,10 @@ function initPlaylist(playlistId, page) {
 }
 
 function navigate(path) {
+    if (path === "/") {
+        path = "/home";
+    }
+
     window.history.pushState({}, path, window.location.origin + path);
     const pathComponents = path.split("/");
     pathComponents.shift();
