@@ -327,7 +327,7 @@ function initPlaylist(playlistId, page) {
 
             const frag = document.createDocumentFragment();
 
-            songsForCurrentPage.forEach(song => {
+            songsForCurrentPage.forEach(async song => {
 
                 const td = document.createElement("td");
 
@@ -350,14 +350,9 @@ function initPlaylist(playlistId, page) {
 
                 const img = document.createElement("img");
                 img.alt = song.title || "Song cover";
-                img.src = auth.authenticatedFetch(song.artworkUrl, {method: "GET"})
-                    .then(response => response.blob())
+                auth.authenticatedBlobFetch(song.artworkUrl, {method: "GET"})
                     .then(blob => {
-                        const blobUrl = URL.createObjectURL(blob);
-                        img.src = blobUrl;
-                    })
-                    .catch(err => {
-                        console.error("Failed to load artwork:", err);
+                        img.src = blob;
                     });
 
                 div.appendChild(img);
