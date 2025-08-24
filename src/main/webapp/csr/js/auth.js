@@ -38,6 +38,7 @@ export default class Auth {
         //console.log("Checking if user is logged in. Token:", this.token);
         //console.log("Full Name:", this.fullName);
         //console.log("Username:", this.username);
+
         return this.token !== null;
     }
 
@@ -153,7 +154,15 @@ export default class Auth {
             ...(options.headers || {}),
             ...this.getAuthHeader(),
         };
-        return fetch(url, { ...options, headers });
+        return fetch(url, { ...options, headers }).then(
+            response => {
+                if (response.status === 401) {
+                    this.logout();
+                    throw new Error("Session expired. Please log in again.");
+                }
+                return response;
+            }
+        );
     }
 
     /**
