@@ -89,6 +89,7 @@ public final class PlaylistsWildcardRESTServlet extends AuthenticatedJsonRESTSer
         return new ObjectMapper().valueToTree(songs);
     }
 
+    // PUT /api/playlists/{playlistId}/song-order
     @Override
     protected JsonNode processApiPut(User user, HttpServletRequest req, Connection dbConnection) throws InvalidRequestException, SQLException {
         Iterator<String> iter = getPathComponents(req);
