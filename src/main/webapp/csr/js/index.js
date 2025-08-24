@@ -98,10 +98,11 @@ async function createSongFromForm(form) {
 }
 
 async function createPlaylist(playlistName, selectedSongs = []) {
-    const response = await auth.authenticatedFetch("/api/playlists", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
-            name: playlistName,
-            songs: selectedSongs
-        })});
+    const response = await auth.authenticatedFetch("/api/playlists", {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+            name: playlistName, songs: selectedSongs
+        })
+    });
     if (!response.ok) {
         const err = await response.json().catch(() => ({}));
         throw new Error(err.error || "Playlist creation failed");
@@ -185,14 +186,12 @@ function initHome() {
     auth.authenticatedFetch("/api/genres", {method: "GET"})
         .then(response => response.json())
         .then(genres => {
-            genres.forEach(
-                genre => {
-                    const option = document.createElement("option");
-                    option.value = genre;
-                    option.textContent = genre;
-                    createSongForm.genre.appendChild(option);
-                }
-            )
+            genres.forEach(genre => {
+                const option = document.createElement("option");
+                option.value = genre;
+                option.textContent = genre;
+                createSongForm.genre.appendChild(option);
+            })
         });
 
     createSongForm.addEventListener("submit", async (e) => {
@@ -214,8 +213,7 @@ function initHome() {
 
     if (allSongs.length === 0) {
         selectionForm.getElementsByClassName("no-songs-available-section")[0].classList.remove("hidden");
-    }
-    else {
+    } else {
         const checkboxesGroup = selectionForm.getElementsByClassName("song-select-main-form-group");
         const selectableEntryTemplate = document.getElementById("song-selectable-entry");
         // populate checkboxes:
@@ -292,7 +290,6 @@ function initPlaylist(playlistId, page) {
             }
 
 
-
             const playlistTitleEl = document.getElementById("playlist-name");
             if (playlistTitleEl) {
                 playlistTitleEl.textContent = playlist.getName() || "Playlist";
@@ -313,7 +310,7 @@ function initPlaylist(playlistId, page) {
                 metaSpan.textContent = `Created at: ${createdAtStr}`;
             }
 
-            if(playlist.getSongs().length === 0){
+            if (playlist.getSongs().length === 0) {
                 noSongsEl.classList.remove("hidden");
                 noSongsEl.textContent = "No songs in this playlist.";
                 return;
@@ -373,12 +370,10 @@ function initPlaylist(playlistId, page) {
 
             songRowEl.replaceChildren(frag);
 
-        }).catch(
-        err => {
-            console.error("Error loading playlist:", err);
-            const app = document.getElementById("app");
-        }
-    )
+        }).catch(err => {
+        console.error("Error loading playlist:", err);
+        const app = document.getElementById("app");
+    })
 }
 
 function navigate(path) {

@@ -76,9 +76,7 @@ export default class Auth {
      */
     async login(username, password) {
         const response = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({username, password}),
+            method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({username, password}),
         });
         if (!response.ok) {
             const err = await response.json().catch(() => ({}));
@@ -145,8 +143,7 @@ export default class Auth {
      */
     async logoutFromAllDevices() {
         const response = await fetch("/api/sessions", {
-            method: "DELETE",
-            headers: this.getAuthHeader(),
+            method: "DELETE", headers: this.getAuthHeader(),
         });
         if (!response.ok) {
             throw new Error("Failed to logout from all devices");
@@ -162,18 +159,15 @@ export default class Auth {
      */
     authenticatedFetch(url, options = {}) {
         const headers = {
-            ...(options.headers || {}),
-            ...this.getAuthHeader(),
+            ...(options.headers || {}), ...this.getAuthHeader(),
         };
-        return fetch(url, {...options, headers}).then(
-            response => {
-                if (response.status === 401) {
-                    this.logout();
-                    throw new Error("Session expired. Please log in again.");
-                }
-                return response;
+        return fetch(url, {...options, headers}).then(response => {
+            if (response.status === 401) {
+                this.logout();
+                throw new Error("Session expired. Please log in again.");
             }
-        );
+            return response;
+        });
     }
 
     /**

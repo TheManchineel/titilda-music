@@ -1,4 +1,4 @@
-export default class playlist {
+export default class Playlist {
     #auth;
     #uuid;
     #name;
@@ -23,7 +23,7 @@ export default class playlist {
 
     #fetchSongs(uuid) {
         console.log(" #fetchSongs called with UUID:", uuid);
-        
+
         // Create promises for both API calls
         const metadataPromise = this.#auth.authenticatedFetch(`/api/playlists/${uuid}`, {method: "GET"})
             .then(response => {
@@ -70,8 +70,8 @@ export default class playlist {
      * @returns {Array} an array of songs for the specified page
      */
     getSongs(page = 0) {
-        if (page < 0 ) {
-           page = 0;
+        if (page < 0) {
+            page = 0;
         }
         if (page >= this.#numberOfPages) {
             page = this.#numberOfPages - 1;
