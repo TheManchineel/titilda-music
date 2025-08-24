@@ -257,7 +257,7 @@ function isValidUUID(uuid) {
     return uuidRegex.test(uuid);
 }
 
-function createSongElement(song) {
+function createSongElement(playlist, song) {
     const td = document.createElement("td");
     const a = document.createElement("a");
     a.className = "song-cell";
@@ -276,10 +276,7 @@ function createSongElement(song) {
 
     const img = document.createElement("img");
     img.alt = song.title || "Song cover";
-    auth.authenticatedBlobFetch(song.artworkUrl, {method: "GET"})
-        .then(blob => {
-            img.src = blob;
-        });
+    img.src = playlist.getArtworkUrl(song.id);
 
     div.appendChild(img);
     a.appendChild(div);
@@ -306,7 +303,7 @@ function renderPlaylistContent(playlist, page) {
     const frag = document.createDocumentFragment();
 
     songsForCurrentPage.forEach(async song => {
-        const songCell = createSongElement(song);
+        const songCell = createSongElement(playlist, song);
         frag.appendChild(songCell);
     });
 
@@ -381,7 +378,7 @@ function initPlaylist(playlistId, page) {
                 navigate("/404");
                 return;
             }
-            
+
             setupPagination(playlist, page);
             renderPlaylistMetadata(playlist);
             renderPlaylistContent(playlist, page);

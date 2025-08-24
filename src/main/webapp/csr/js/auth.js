@@ -176,13 +176,12 @@ export default class Auth {
      * @param {Object} options the options to pass to the fetch call
      * @returns {Promise<String>} a promise that resolves to a URL object
      */
-    authenticatedBlobFetch(url, options = {}) {
-        return this.authenticatedFetch(url, options)
-            .then(response => response.blob())
-            .then(blob => URL.createObjectURL(blob))
-            .catch(err => {
-                console.error("Failed to load artwork:", err);
-            });
+    async authenticatedBlobFetch(url, options = {}) {
+        const response = await this.authenticatedFetch(url, options);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch blob: ${response.status}`);
+        }
+        return await response.blob();
     }
 
     /**

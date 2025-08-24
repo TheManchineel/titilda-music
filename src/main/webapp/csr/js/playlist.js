@@ -6,6 +6,8 @@ export default class Playlist {
     #songs;
     #numberOfPages;
     #loadPromise;
+    #artworkCache = new Map();
+
 
     constructor(authInstance, uuid) {
         this.#auth = authInstance;
@@ -18,6 +20,7 @@ export default class Playlist {
     // Return a promise that resolves when all data is loaded
     async load() {
         const result = await this.#loadPromise;
+        await this.preloadArtworks();
         return result;
     }
 
@@ -63,6 +66,23 @@ export default class Playlist {
         return Promise.all([metadataPromise, songsPromise]);
     }
 
+    async preloadArtworks() {
+        const artworkPromises = this.#songs.map(async (song) => {
+            try {
+                const blob = await this.#auth.authenticatedBlobFetch(song.artworkUrl, {method: "GET"});
+                const blobUrl = URL.createObjectURL(blob);
+                this.#artworkCache.set(song.id, blobUrl);
+                return { songId: song.id, blobUrl };
+            } catch (err) {
+                console.error("Failed to load artwork for song:", song.id, err);
+                this.#artworkCache.set(song.id, '/static/artworks/default_artwork.webp');
+                return { songId: song.id, blobUrl: '/static/artworks/default_artwork.webp' };
+            }
+        });
+
+        await Promise.all(artworkPromises);
+    }
+
     /**
      * Gets songs for the specified page
      * - A page contains 5 songs
@@ -94,5 +114,9 @@ export default class Playlist {
 
     getNumberOfPages() {
         return this.#numberOfPages;
+    }
+
+    getArtworkUrl(songId) {
+        return this.#artworkCache.get(songId) || '/static/artworks/default_artwork.webp';
     }
 }
