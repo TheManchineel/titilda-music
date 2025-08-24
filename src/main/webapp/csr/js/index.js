@@ -393,7 +393,9 @@ function navigate(path) {
             initPlaylist(pathComponents[1], pathComponents[2] || null);
         }
     } else {
-        app.innerHTML = "<h2>404</h2><p>Page not found.</p>";
+        // 404
+        const notFoundTemplate = document.getElementById("404");
+        app.appendChild(notFoundTemplate.content.cloneNode(true));
     }
     updateNavVisibility();
 }
