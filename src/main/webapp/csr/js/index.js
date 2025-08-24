@@ -93,6 +93,21 @@ function initHome() {
         .then(items => {
             const playlistEl = document.querySelector(".playlist-list");
             if (!playlistEl) return;
+            const emptyEl = document.querySelector(".playlist-empty");
+            const notEmptyEl = document.querySelector(".playlist-header");
+            if (items.length === 0) {
+                if (emptyEl) emptyEl.classList.remove("hidden");
+                if (notEmptyEl) notEmptyEl.classList.add("hidden");
+                playlistEl.replaceChildren();
+                return;
+            } else {
+                if (emptyEl) {
+                    emptyEl.classList.add("hidden");
+                }
+                if (notEmptyEl) {
+                    notEmptyEl.classList.remove("hidden");
+                }
+            }
 
             const frag = document.createDocumentFragment();
 
