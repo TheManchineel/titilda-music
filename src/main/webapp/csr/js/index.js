@@ -83,6 +83,16 @@ function getPlaylistItems() {
         });
 }
 
+async function createSongFromForm(form) {
+    const formData = new FormData(form);
+
+    const response = await auth.authenticatedFetch("/api/songs", {method: "POST", body: formData})
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Song creation failed");
+    }
+}
+
 function initHome() {
     const fullNameEl = document.getElementById("full-name");
     if (!fullNameEl) return;
@@ -147,6 +157,29 @@ function initHome() {
             console.error("Error fetching playlist items:", error);
         });
 
+    const createSongForm = document.getElementById("create-song-form");
+    if (!createSongForm) return;
+
+    auth.authenticatedFetch("/api/genres", {method: "GET"})
+        .then(response => response.json())
+        .then(genres => {genres.forEach(
+            genre => {
+                const option = document.createElement("option");
+                option.value = genre;
+                option.textContent = genre;
+                createSongForm.genre.appendChild(option);
+            }
+        )});
+
+    createSongForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+            await createSongFromForm(createSongForm);
+            navigate("/home");
+        } catch (err) {
+            reportErrorToForm(createSongForm, err);
+        }
+    })
 }
 
 function navigate(path) {

@@ -65,7 +65,7 @@ public abstract class MultiPartValidator {
         }
     }
 
-    private static void assignField(Field field, Object obj, Part part) {
+    private static void assignField(Field field, Object obj, Part part) throws InvalidFieldDataException {
         try {
             if (field.getType().equals(Part.class)) {
                 field.set(obj, part);
@@ -74,8 +74,11 @@ public abstract class MultiPartValidator {
             } else if (field.getType().equals(Integer.class)) {
                 field.set(obj, Integer.parseInt(new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8)));
             }
-        } catch (IOException | IllegalAccessException | NumberFormatException e) {
-            throw new IllegalArgumentException(e);
+        } catch (IOException | IllegalAccessException _) {
+            throw new InvalidFieldDataException(field, "Error parsing data");
+        }
+        catch (NumberFormatException _) {
+            throw new InvalidFieldDataException(field, "Number format is invalid");
         }
     }
 
@@ -100,6 +103,7 @@ public abstract class MultiPartValidator {
                 }
 
                 if (annotation.maxSize() > 0 && part.getSize() > annotation.maxSize()) {
+                    System.out.println("Part of size " + part.getSize() + " exceeds maximum size of " + annotation.maxSize() + " for field " + field.getName());
                     throw new InvalidDataSizeException(field, annotation.maxSize(), "Field exceeds maximum size");
                 }
 

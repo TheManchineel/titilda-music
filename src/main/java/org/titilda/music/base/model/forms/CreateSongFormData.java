@@ -17,7 +17,7 @@ public final class CreateSongFormData extends MultiPartValidator {
     @MultipartField(name="genre", contentTypes = {}, maxSize = 256L)
     public String genre;
 
-    @MultipartField(name = "albumYear", contentTypes = {}, maxSize = 8L)
+    @MultipartField(name = "albumYear", contentTypes = {}, maxSize = 256L)
     public Integer albumYear;
 
     @MultipartField(name = "artwork", contentTypes = {"image/jpeg", "image/png", "image/webp"}, maxSize = 1024L * 1024L * 2L, required = false)
