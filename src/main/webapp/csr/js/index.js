@@ -257,6 +257,109 @@ function isValidUUID(uuid) {
     return uuidRegex.test(uuid);
 }
 
+function createSongElement(song) {
+    const td = document.createElement("td");
+    const a = document.createElement("a");
+    a.className = "song-cell";
+    //todo: add link to song page
+
+    const span1 = document.createElement("span");
+    span1.className = "song-title";
+    span1.textContent = song.title || "Unknown title";
+
+    const span2 = document.createElement("span");
+    span2.className = "song-artist";
+    span2.textContent = song.artist || "Unknown artist";
+
+    const div = document.createElement("div");
+    div.className = "song-cover";
+
+    const img = document.createElement("img");
+    img.alt = song.title || "Song cover";
+    auth.authenticatedBlobFetch(song.artworkUrl, {method: "GET"})
+        .then(blob => {
+            img.src = blob;
+        });
+
+    div.appendChild(img);
+    a.appendChild(div);
+    a.appendChild(span1);
+    a.appendChild(span2);
+    td.appendChild(a);
+
+    return td;
+}
+
+function renderPlaylistContent(playlist, page) {
+    const noSongsEl = document.getElementById("no-songs-message");
+
+    if (playlist.getSongs().length === 0) {
+        noSongsEl.classList.remove("hidden");
+        noSongsEl.textContent = "No songs in this playlist.";
+        return;
+    } else {
+        noSongsEl.classList.add("hidden");
+    }
+
+    const songsForCurrentPage = playlist.getSongs(page);
+    const songRowEl = document.getElementById("song-table-row");
+    const frag = document.createDocumentFragment();
+
+    songsForCurrentPage.forEach(async song => {
+        const songCell = createSongElement(song);
+        frag.appendChild(songCell);
+    });
+
+    songRowEl.replaceChildren(frag);
+}
+
+
+function setupPagination(playlist, page) {
+    const prevBtn = document.getElementById("left-button");
+    const nextBtn = document.getElementById("right-button");
+
+    if (prevBtn) {
+        prevBtn.style.visibility = page <= 0 ? "hidden" : "visible";
+        prevBtn.onclick = () => {
+            if (page > 0) {
+                navigate(`/playlists/${playlist.getUUID()}/${page - 1}`);
+            }
+        };
+    }
+
+    if (nextBtn) {
+        const totalPages = playlist.getNumberOfPages();
+        nextBtn.style.visibility = page >= totalPages - 1 ? "hidden" : "visible";
+        nextBtn.onclick = () => {
+            if (page < totalPages - 1) {
+                navigate(`/playlists/${playlist.getUUID()}/${page + 1}`);
+            }
+        };
+    }
+}
+
+function renderPlaylistMetadata(playlist) {
+    const playlistTitleEl = document.getElementById("playlist-name");
+    if (playlistTitleEl) {
+        playlistTitleEl.textContent = playlist.getName() || "Playlist";
+    }
+
+    const metaSpan = document.querySelector(".meta span");
+    if (metaSpan) {
+        const createdAt = playlist.getCreatedAt() ? new Date(playlist.getCreatedAt()) : null;
+        let createdAtStr = "";
+        if (createdAt && !isNaN(createdAt)) {
+            const day = createdAt.getDate();
+            const month = createdAt.toLocaleString("en-US", {month: "short"});
+            const year = createdAt.getFullYear();
+            const hour = createdAt.getHours().toString().padStart(2, "0");
+            const min = createdAt.getMinutes().toString().padStart(2, "0");
+            createdAtStr = `${day} ${month} ${year}, ${hour}:${min}`;
+        }
+        metaSpan.textContent = `Created at: ${createdAtStr}`;
+    }
+}
+
 function initPlaylist(playlistId, page) {
     if (!playlistId || !isValidUUID(playlistId)) {
         navigate("/404");
@@ -269,118 +372,19 @@ function initPlaylist(playlistId, page) {
     const playlist = new Playlist(auth, playlistId);
     playlist.load()
         .then(() => {
-
             if (!playlist.getName()) {
-                // Playlist doesn't exist or user doesn't have access
                 navigate("/404");
                 return;
             }
-
-            const noSongsEl = document.getElementById("no-songs-message");
-            const prevBtn = document.getElementById("left-button");
-            const nextBtn = document.getElementById("right-button");
-
-            if (prevBtn) {
-                // Use visibility instead of display to preserve layout
-                prevBtn.style.visibility = page <= 0 ? "hidden" : "visible";
-                prevBtn.onclick = () => {
-                    if (page > 0) {
-                        navigate(`/playlists/${playlist.getUUID()}/${page - 1}`);
-                    }
-                };
-            }
-
-            if (nextBtn) {
-                const totalPages = playlist.getNumberOfPages();
-                // Use visibility instead of display to preserve layout
-                nextBtn.style.visibility = page >= totalPages - 1 ? "hidden" : "visible";
-                nextBtn.onclick = () => {
-                    if (page < totalPages - 1) {
-                        navigate(`/playlists/${playlist.getUUID()}/${page + 1}`);
-                    }
-                };
-            }
-
-
-            const playlistTitleEl = document.getElementById("playlist-name");
-            if (playlistTitleEl) {
-                playlistTitleEl.textContent = playlist.getName() || "Playlist";
-            }
-
-            const metaSpan = document.querySelector(".meta span");
-            if (metaSpan) {
-                const createdAt = playlist.getCreatedAt() ? new Date(playlist.getCreatedAt()) : null;
-                let createdAtStr = "";
-                if (createdAt && !isNaN(createdAt)) {
-                    const day = createdAt.getDate();
-                    const month = createdAt.toLocaleString("en-US", {month: "short"});
-                    const year = createdAt.getFullYear();
-                    const hour = createdAt.getHours().toString().padStart(2, "0");
-                    const min = createdAt.getMinutes().toString().padStart(2, "0");
-                    createdAtStr = `${day} ${month} ${year}, ${hour}:${min}`;
-                }
-                metaSpan.textContent = `Created at: ${createdAtStr}`;
-            }
-
-            if (playlist.getSongs().length === 0) {
-                noSongsEl.classList.remove("hidden");
-                noSongsEl.textContent = "No songs in this playlist.";
-                return;
-            } else {
-                noSongsEl.classList.add("hidden");
-            }
-
-            // Access song data here:
-            const allSongs = playlist.getSongs(); // Gets all songs
-            const songsForCurrentPage = playlist.getSongs(page); // Gets songs for specific page (5 per page)
-            const totalPages = playlist.getNumberOfPages();
-
-            const songRowEl = document.getElementById("song-table-row");
-
-            const frag = document.createDocumentFragment();
-
-            songsForCurrentPage.forEach(async song => {
-
-                const td = document.createElement("td");
-
-                const a = document.createElement("a");
-
-                a.className = "song-cell";
-                //todo: add link to song page
-
-                const span1 = document.createElement("span");
-
-                span1.className = "song-title";
-                span1.textContent = song.title || "Unknown title";
-
-                const span2 = document.createElement("span");
-                span2.className = "song-artist";
-                span2.textContent = song.artist || "Unknown artist";
-
-                const div = document.createElement("div");
-                div.className = "song-cover";
-
-                const img = document.createElement("img");
-                img.alt = song.title || "Song cover";
-                auth.authenticatedBlobFetch(song.artworkUrl, {method: "GET"})
-                    .then(blob => {
-                        img.src = blob;
-                    });
-
-                div.appendChild(img);
-                a.appendChild(div);
-                a.appendChild(span1);
-                a.appendChild(span2);
-                td.appendChild(a);
-                frag.appendChild(td);
-            });
-
-            songRowEl.replaceChildren(frag);
-
-        }).catch(err => {
-        console.error("Error loading playlist:", err);
-        const app = document.getElementById("app");
-    })
+            
+            setupPagination(playlist, page);
+            renderPlaylistMetadata(playlist);
+            renderPlaylistContent(playlist, page);
+        })
+        .catch(err => {
+            console.error("Error loading playlist:", err);
+            navigate("/404");
+        });
 }
 
 function navigate(path) {
