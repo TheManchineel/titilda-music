@@ -97,6 +97,19 @@ async function createSongFromForm(form) {
     }
 }
 
+async function createPlaylist(playlistName, selectedSongs = []) {
+    const response = await auth.authenticatedFetch("/api/playlists", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+            name: playlistName,
+            songs: selectedSongs
+        })});
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Playlist creation failed");
+    }
+    const newPlaylistUrl = await response.json().then(data => `/playlists/${data.id}`).catch(() => "/home");
+    navigate(newPlaylistUrl);
+}
+
 function initHome() {
     const fullNameEl = document.getElementById("full-name");
     if (!fullNameEl) return;
@@ -190,21 +203,65 @@ function initHome() {
         } catch (err) {
             reportErrorToForm(createSongForm, err);
         }
+    });
+
+    const selectionFormTemplate = document.getElementById("song-selection-form");
+    const selectionFormSection = selectionFormTemplate.content.cloneNode(true).firstElementChild;
+    const selectionForm = selectionFormSection.querySelector("form");
+    selectionFormSection.getElementsByClassName("form-title")[0].textContent = "Create a new playlist";
+
+    const allSongs = auth.authenticatedFetch("/api/songs", {method: "GET"}).then(response => response.json());
+
+    if (allSongs.length === 0) {
+        selectionForm.getElementsByClassName("no-songs-available-section")[0].classList.remove("hidden");
+    }
+    else {
+        const checkboxesGroup = selectionForm.getElementsByClassName("song-select-main-form-group");
+        const selectableEntryTemplate = document.getElementById("song-selectable-entry");
+        // populate checkboxes:
+        allSongs.then(songs => {
+            songs.forEach(song => {
+                const checkboxEntry = selectableEntryTemplate.content.cloneNode(true).firstElementChild;
+                checkboxEntry.querySelector("input").value = song.id;
+                checkboxEntry.getElementsByClassName("song-display-name").item(0).textContent = song.title + " — " + song.artist;
+                checkboxesGroup.item(0).appendChild(checkboxEntry);
+            })
+        })
+    }
+
+    selectionForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const selectedSongs = [];
+        const checkboxes = selectionForm.querySelectorAll("input[type='checkbox']");
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedSongs.push(checkbox.value);
+            }
+        });
+        const playlistName = selectionForm.playlistName.value;
+        if (playlistName === "") {
+            reportErrorToForm(selectionForm, new Error("Playlist name cannot be empty"));
+            return;
+        }
+        try {
+            await createPlaylist(playlistName, selectedSongs);
+        } catch (err) {
+            reportErrorToForm(selectionForm, err);
+        }
     })
+
+    const leftSection = document.getElementById("left-section");
+    leftSection.appendChild(selectionFormSection);
 }
 
 function initPlaylist(playlistId, page) {
-    console.log("🚀 initPlaylist called with playlistId:", playlistId, "page:", page);
-
     if (!playlistId) {
-        console.log("🚀 No playlistId, navigating to home");
         navigate("/home");
         return;
     }
 
     page = parseInt(page);
     if (isNaN(page) || page < 0) page = 0;
-    console.log("🚀 Parsed page:", page);
 
     const playlist = new Playlist(auth, playlistId);
     playlist.load()
@@ -269,8 +326,6 @@ function initPlaylist(playlistId, page) {
             const songsForCurrentPage = playlist.getSongs(page); // Gets songs for specific page (5 per page)
             const totalPages = playlist.getNumberOfPages();
 
-            console.log("🚀 All songs:", allSongs);
-
             const songRowEl = document.getElementById("song-table-row");
 
             const frag = document.createDocumentFragment();
@@ -298,7 +353,6 @@ function initPlaylist(playlistId, page) {
 
                 const img = document.createElement("img");
                 img.alt = song.title || "Song cover";
-                console.log("🚀 Song artwork URL:", song.artworkUrl);
                 img.src = auth.authenticatedFetch(song.artworkUrl, {method: "GET"})
                     .then(response => response.blob())
                     .then(blob => {
@@ -364,7 +418,6 @@ document.querySelectorAll("nav a").forEach(link => {
             navigate("/login");
             return;
         }
-        console.log(path);
         switch (path) {
             case "/logout": {
                 auth.logout();
@@ -395,6 +448,5 @@ updateNavVisibility();
 if (auth.isLoggedIn()) {
     navigate(routes[initialPath] ? initialPath : "/home");
 } else {
-    console.log("Going to login...");
     navigate("/login");
 }

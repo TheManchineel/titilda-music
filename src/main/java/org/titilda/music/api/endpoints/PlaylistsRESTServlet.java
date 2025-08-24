@@ -50,8 +50,7 @@ public final class PlaylistsRESTServlet extends AuthenticatedJsonRESTServlet {
                 throw new InvalidRequestException("Song with ID " + songId + " not found or accessible.", HttpServletResponse.SC_NOT_FOUND);
         }
 
-        List<Song> songs = dao.getSongsInPlaylist(createdPlaylist.getId());
-        return new ObjectMapper().convertValue(songs, JsonNode.class);
+        return new ObjectMapper().convertValue(createdPlaylist, JsonNode.class);
     }
 }
 

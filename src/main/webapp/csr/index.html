@@ -47,7 +47,7 @@
         <p>Welcome back, <strong id="full-name">User</strong>.</p>
 
         <div class="content-grid">
-            <section>
+            <section id="left-section">
                 <h2>Your Playlists</h2>
                 <div>
                     <p class="playlist-empty">No playlists yet.</p>
@@ -183,6 +183,44 @@
     </div>
 </template>
 
+<template id="song-selectable-entry">
+    <div style="margin: 6px 0;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" name="songIds">
+            <span class="song-display-name"></span>
+        </label>
+    </div>
+</template>
+
+<template id="song-selection-form">
+    <section>
+        <h2 class="form-title"></h2>
+        <form class="song-select-form">
+            <div class="error-message hidden">
+                <p class="error-text">Error</p>
+            </div>
+
+            <div class="form-group playlist-name-section">
+                <label class="form-label" for="playlistName">Playlist name</label>
+                <input class="form-input" type="text" id="playlistName" name="playlistName" required>
+            </div>
+
+            <div class="form-group">
+                <span class="form-label">Songs</span>
+                <div class="song-select-main-form-group" style="max-height: 220px; overflow: auto; padding: 8px; border: 1px solid #30363d; border-radius: 6px; background: #0d1117;">
+                    <div class="no-songs-available-section hidden">
+                        <p class="optional-label" style="margin: 0;">No songs available.</p>
+                    </div>
+                    <!-- ENTRIES ARE POPULATED HERE VIA dom -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button class="form-submit" type="submit">Submit</button>
+            </div>
+        </form>
+    </section>
+</template>
 
 <template id="playlist">
     <main class="container">
