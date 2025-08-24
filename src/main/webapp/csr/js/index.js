@@ -413,14 +413,14 @@ function initPlaylist(playlistId, page) {
             setupPagination(playlist, page);
             renderPlaylistMetadata(playlist);
             renderPlaylistContent(playlist, page);
+
+            const addSongsToPlaylistForm = createSongSelectionForm(playlistId);
+            document.getElementById("add-song-form").appendChild(addSongsToPlaylistForm)
         })
         .catch(err => {
             console.error("Error loading playlist:", err);
             navigate("/404");
         });
-    const addSongsToPlaylistForm = createSongSelectionForm(playlistId);
-    document.getElementById("add-song-form").appendChild(addSongsToPlaylistForm);
-
 }
 
 function navigate(path) {
