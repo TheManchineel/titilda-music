@@ -322,7 +322,7 @@ function setupPagination(playlist, page) {
         prevBtn.style.visibility = page <= 0 ? "hidden" : "visible";
         prevBtn.onclick = () => {
             if (page > 0) {
-                navigate(`/playlists/${playlist.getUUID()}/${page - 1}`);
+                updatePlaylistPage(playlist, page - 1);
             }
         };
     }
@@ -332,10 +332,15 @@ function setupPagination(playlist, page) {
         nextBtn.style.visibility = page >= totalPages - 1 ? "hidden" : "visible";
         nextBtn.onclick = () => {
             if (page < totalPages - 1) {
-                navigate(`/playlists/${playlist.getUUID()}/${page + 1}`);
+                updatePlaylistPage(playlist, page + 1);
             }
         };
     }
+}
+
+function updatePlaylistPage(playlist, newPage) {
+    setupPagination(playlist, newPage);
+    renderPlaylistContent(playlist, newPage);
 }
 
 function renderPlaylistMetadata(playlist) {
