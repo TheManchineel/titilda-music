@@ -22,6 +22,7 @@ const routes = {
 function initLogin() {
     const loginForm = document.getElementById("login-form");
     if (!loginForm) return;
+    console.log("Setting up login...")
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const username = loginForm.username.value;
@@ -184,21 +185,20 @@ function initHome() {
 
 function navigate(path) {
     window.history.pushState({}, path, window.location.origin + path);
-    path = path.split("/");
-    path.shift();
-    console.log(path);
-    const template = routes["/" + (path[0] || "")];
+    const pathComponents = path.split("/");
+    pathComponents.shift();
+    const template = routes["/" + (pathComponents[0] || "")];
     const app = document.getElementById("app");
     app.innerHTML = "";
     if (template) {
         app.appendChild(template.content.cloneNode(true));
-        if (path[0] === "login") {
+        if (pathComponents[0] === "login") {
             initLogin();
         }
-        if (path[0] === "signup") {
+        if (pathComponents[0] === "signup") {
             initSignup();
         }
-        if (path[0] === "home") {
+        if (pathComponents[0] === "home") {
             initHome();
         }
     } else {
@@ -209,18 +209,31 @@ function navigate(path) {
 
 
 document.querySelectorAll("nav a").forEach(link => {
-    link.addEventListener("click", e => {
+    link.addEventListener("click", async e => {
         e.preventDefault(); // stop full reload
-        const path = e.target.getAttribute("data-route");
+        // IMPORTANT: currentTarget is the element that the eventListener is attached to, not the target of the click itself. Won't work otherwise!!!
+        const path = e.currentTarget.getAttribute("data-route");
         if (!auth.isLoggedIn()) {
             navigate("/login");
             return;
         }
-        if (path === "/logout") {
-            auth.logout();
-            return;
+        console.log(path);
+        switch (path) {
+            case "/logout": {
+                auth.logout();
+                return;
+            }
+            case "/logout-everywhere": {
+                await auth.logoutFromAllDevices();
+                return;
+            }
+            default: {
+                if (path) {
+                    navigate(path);
+                    return;
+                }
+            }
         }
-        if (path) navigate(path);
     });
 });
 
@@ -235,5 +248,6 @@ updateNavVisibility();
 if (auth.isLoggedIn()) {
     navigate(routes[initialPath] ? initialPath : "/home");
 } else {
+    console.log("Going to login...");
     navigate("/login");
 }
