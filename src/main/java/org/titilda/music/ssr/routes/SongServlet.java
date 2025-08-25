@@ -51,14 +51,16 @@ public final class SongServlet extends BaseAuthenticatedGetServlet {
             DAO dao = new DAO(connection);
             Optional<Song> songOpt = dao.getSongById(songId);
             if (songOpt.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 variables.put("error", "Song not found");
                 return variables;
             }
 
             Song song = songOpt.get();
 
-            // Check ownership - user can only view their own songs
             if (!song.getOwner().equals(user.getUsername())) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND); // we don't even tell the user a song exists but
+                                                                      // they don't own it, more secure this way.
                 variables.put("error", "Song not found");
                 return variables;
             }
