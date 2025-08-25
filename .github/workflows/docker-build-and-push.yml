@@ -1,0 +1,82 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BASE: themanchineel/titilda-music
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Generate timestamp
+      id: timestamp
+      run: echo "datetime=$(date -u +%Y-%m-%dT%H-%M-%SZ)" >> $GITHUB_OUTPUT
+
+    - name: Extract metadata for CSR
+      id: meta-csr
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BASE }}
+        tags: |
+          type=raw,value=csr-latest
+          type=raw,value=csr-${{ steps.timestamp.outputs.datetime }}
+
+    - name: Extract metadata for SSR
+      id: meta-ssr
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BASE }}
+        tags: |
+          type=raw,value=ssr-latest
+          type=raw,value=ssr-${{ steps.timestamp.outputs.datetime }}
+
+    - name: Build and push CSR Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.csr
+        push: true
+        tags: ${{ steps.meta-csr.outputs.tags }}
+        labels: ${{ steps.meta-csr.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push SSR Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.ssr
+        push: true
+        tags: ${{ steps.meta-ssr.outputs.tags }}
+        labels: ${{ steps.meta-ssr.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Image digest
+      run: |
+        echo "CSR image digest: ${{ steps.meta-csr.outputs.digest }}"
+        echo "SSR image digest: ${{ steps.meta-ssr.outputs.digest }}"
