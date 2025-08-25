@@ -54,12 +54,20 @@ public final class PlaylistServlet extends BaseAuthenticatedGetServlet {
                         .orElseThrow(PlaylistNotFoundException::new);
 
                 int page = 0;
-                String off = request.getParameter("page");
-                if (off != null) {
+                int totalPageCount = dao.getSongPageCount(playlistId);
+                String pageStringValue = request.getParameter("page");
+                if (pageStringValue != null) {
+                    if (totalPageCount == 0) {
+                        throw new InternalErrorException("Playlist is empty, cannot access pages", "/error?error=bad_request");
+                    }
                     try {
-                        page = Integer.parseInt(off);
+                        page = Integer.parseInt(pageStringValue);
                     } catch (NumberFormatException _) {
                     }
+                }
+
+                if (page < 0 || (totalPageCount > 0 && page >= totalPageCount)) {
+                    throw new InternalErrorException("Invalid page number", "/error?error=bad_request");
                 }
 
                 variables.put("playlist", playlist);
