@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.database.DAO;
 import org.titilda.music.base.database.DatabaseManager;
-import org.titilda.music.base.exceptions.InternalErrorException;
+import org.titilda.music.ssr.exceptions.InternalErrorException;
 import org.titilda.music.base.model.Song;
 import org.titilda.music.base.model.User;
 import org.titilda.music.ssr.BaseAuthenticatedGetServlet;

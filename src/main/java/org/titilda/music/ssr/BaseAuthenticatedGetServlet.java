@@ -3,8 +3,8 @@ package org.titilda.music.ssr;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.titilda.music.base.controller.Authentication;
-import org.titilda.music.base.exceptions.InternalErrorException;
-import org.titilda.music.base.exceptions.UnauthenticatedException;
+import org.titilda.music.ssr.exceptions.InternalErrorException;
+import org.titilda.music.ssr.exceptions.UnauthenticatedException;
 import org.titilda.music.base.model.User;
 
 import java.util.Map;

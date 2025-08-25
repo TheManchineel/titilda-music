@@ -1,10 +1,9 @@
 package org.titilda.music.ssr;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.titilda.music.base.exceptions.InternalErrorException;
-import org.titilda.music.base.exceptions.UnauthenticatedException;
+import org.titilda.music.ssr.exceptions.InternalErrorException;
+import org.titilda.music.ssr.exceptions.UnauthenticatedException;
 
 import java.io.IOException;
 import java.io.PrintWriter;

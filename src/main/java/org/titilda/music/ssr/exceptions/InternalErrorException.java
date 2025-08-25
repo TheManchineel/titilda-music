@@ -1,4 +1,4 @@
-package org.titilda.music.base.exceptions;
+package org.titilda.music.ssr.exceptions;
 
 public final class InternalErrorException extends Exception {
     private final String redirect;
