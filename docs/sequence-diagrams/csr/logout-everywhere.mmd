@@ -1,0 +1,27 @@
+sequenceDiagram
+    actor User
+    box Client
+        participant index.html
+        participant index.js
+        participant auth.js
+    end
+    box Server
+        participant DeleteSessionsServlet
+        participant Authentication
+        participant DAO
+    end
+    User->>index.html: Click logout everywhere button
+    index.html->>index.js: Handle logout everywhere click
+    index.js->>auth.js: logoutFromAllDevices()
+    auth.js->>DeleteSessionsServlet: DELETE /api/sessions (with Bearer token)
+    DeleteSessionsServlet->>Authentication: validateToken(token)
+    Authentication->>DeleteSessionsServlet: User
+    DeleteSessionsServlet->>Authentication: invalidateAllSessions(user)
+    Authentication->>DAO: setInvalidationDate(user, now)
+    Authentication->>DeleteSessionsServlet: Sessions invalidated
+    DeleteSessionsServlet->>auth.js: 200 OK {success: true}
+    auth.js->>auth.js: Clear token from localStorage
+    auth.js->>auth.js: Clear user info from localStorage
+    auth.js->>index.html: Redirect to /login (window.location.href)
+    index.html->>index.js: Initialize login page
+    index.js->>index.html: Show login form

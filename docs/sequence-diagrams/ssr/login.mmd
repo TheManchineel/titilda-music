@@ -1,0 +1,40 @@
+sequenceDiagram
+    actor User
+    participant RootRedirectServlet
+    participant LoginServlet
+    participant AuthLoginServlet
+    participant HomeServlet
+    participant Authentication
+    participant DAO
+    User->>RootRedirectServlet: GET /
+    RootRedirectServlet->>User: 302 Redirect to /login
+    User->>LoginServlet: GET /login
+    LoginServlet->>User: 200 OK, login.html
+    User->>AuthLoginServlet: POST /auth/login {username, password}
+    AuthLoginServlet->>Authentication: validateCredentials(username, password)
+    Authentication->>DAO: getUserByUsername(username)
+    DAO->>Authentication: Optional<User>
+    Authentication->>AuthLoginServlet: .filter(Authentication::validatePassword)
+    alt User is present
+        AuthLoginServlet->>Authentication: generateToken(user)
+        Authentication->>AuthLoginServlet: token
+        AuthLoginServlet->>User: 302 Redirect to /home, Set-Cookie
+    else User is not present
+        AuthLoginServlet->>User: 302 Redirect to /login?error=invalid_credentials
+    end
+    User->>HomeServlet: GET /home
+    HomeServlet->>HomeServlet: getToken(request)
+    HomeServlet->>Authentication: validateToken(token)
+    alt Token signature is valid
+        Authentication->>DAO: getUserByUsername(token.username)
+        DAO->>Authentication: User
+        alt Token is not expired
+            Authentication->>HomeServlet: User
+            HomeServlet->>DAO: getPlaylistsOfOwner(User)
+            HomeServlet->>User: 200 OK, home.html
+        else Token is expired
+            HomeServlet->>User: 302 Redirect to /login
+        end
+    else Token signature is invalid
+        HomeServlet->>User: 302 Redirect to /login
+    end

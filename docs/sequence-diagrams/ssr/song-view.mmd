@@ -1,0 +1,15 @@
+sequenceDiagram
+    actor User
+    participant SongServlet
+    participant DAO
+    User->>SongServlet: GET /song?id=songId
+    note over SongServlet: User identity is validated as in the "login" sequence
+    SongServlet->>DAO: getSongById(songId)
+    DAO->>SongServlet: Optional<Song>
+    alt Song exists and user owns it
+        SongServlet->>User: 200 OK, song.html (with song details)
+    else Song not found or invalid ID
+        SongServlet->>User: 404 Not Found, song.html (with "Song not found" error)
+    else User doesn't own song
+        SongServlet->>User: 404 Not Found, song.html (with "Song not found" error)
+    end

@@ -1,0 +1,35 @@
+sequenceDiagram
+    actor User
+    participant PlaylistServlet
+    participant FormAddSongsToPlaylist
+    participant Authentication
+    participant DAO
+    User->>PlaylistServlet: GET /playlist?id=playlistId
+    note over PlaylistServlet: User identity is validated as in the "login" sequence
+    PlaylistServlet->>DAO: getPlaylistById(playlistId)
+    DAO->>PlaylistServlet: Playlist
+    PlaylistServlet->>DAO: getSongsInPlaylistPaginated(playlistId, page)
+    PlaylistServlet->>DAO: getSongsNotInPlaylist(user, playlistId)
+    PlaylistServlet->>User: 200 OK, playlist.html (with add songs form)
+    User->>FormAddSongsToPlaylist: POST /form/add-songs-to-playlist {id, songIds[]}
+    note over FormAddSongsToPlaylist: User identity is validated as in the "login" sequence
+    alt Valid playlist ID and songs selected
+        loop For each selected song
+            FormAddSongsToPlaylist->>DAO: addSongToPlaylist(playlistId, songId, username)
+        end
+        FormAddSongsToPlaylist->>User: 302 Redirect to /playlist?id=playlistId
+    else Invalid playlist ID
+        FormAddSongsToPlaylist->>User: 302 Redirect to /error?error=bad_request
+    else No songs selected
+        FormAddSongsToPlaylist->>User: 302 Redirect to /playlist?id=playlistId
+    else Database error
+        FormAddSongsToPlaylist->>User: 302 Redirect to /error?error=internal_server_error
+    end
+    alt Successful update
+        User->>PlaylistServlet: GET /playlist?id=playlistId
+        note over PlaylistServlet: User identity is validated as in the "login" sequence
+        PlaylistServlet->>DAO: getPlaylistById(playlistId)
+        PlaylistServlet->>DAO: getSongsInPlaylistPaginated(playlistId, page)
+        PlaylistServlet->>DAO: getSongsNotInPlaylist(user, playlistId)
+        PlaylistServlet->>User: 200 OK, playlist.html (updated with new songs)
+    end

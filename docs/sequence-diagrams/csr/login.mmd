@@ -1,0 +1,46 @@
+sequenceDiagram
+    actor User
+    box Client
+        participant index.html
+        participant index.js
+        participant auth.js
+    end
+    box Server
+        participant FallbackRouterServlet
+        participant PostAuthLoginServlet
+        participant GetMeServlet
+        participant Authentication
+        participant DAO
+    end
+    User->>index.html: Access SPA route (e.g., GET /)
+    index.html->>FallbackRouterServlet: GET /
+    FallbackRouterServlet->>index.html: 200 OK, index.html (SPA shell)
+    index.html->>index.js: Initialize app
+    index.js->>auth.js: Check isLoggedIn()
+    auth.js->>index.js: false (no token in localStorage)
+    index.js->>index.html: Navigate to /login (show login form)
+    User->>index.html: Submit login form {username, password}
+    index.html->>index.js: Handle form submit
+    index.js->>auth.js: login(username, password)
+    auth.js->>PostAuthLoginServlet: POST /api/auth/login {username, password}
+    PostAuthLoginServlet->>Authentication: validateCredentials(username, password)
+    Authentication->>DAO: getUserByUsername(username)
+    DAO->>Authentication: Optional<User>
+    Authentication->>PostAuthLoginServlet: .filter(Authentication::validatePassword)
+    alt Valid credentials
+        PostAuthLoginServlet->>Authentication: generateToken(user)
+        Authentication->>PostAuthLoginServlet: JWT token
+        PostAuthLoginServlet->>auth.js: 200 OK {access_token, token_type: "bearer"}
+        auth.js->>auth.js: Store token in localStorage
+        auth.js->>GetMeServlet: GET /api/me (with Bearer token)
+        GetMeServlet->>Authentication: validateToken(token)
+        Authentication->>GetMeServlet: User
+        GetMeServlet->>auth.js: 200 OK {username, fullName}
+        auth.js->>auth.js: Store user info in localStorage
+        auth.js->>index.js: Login successful
+        index.js->>index.html: Navigate to /home
+    else Invalid credentials
+        PostAuthLoginServlet->>auth.js: 401 Unauthorized {error: "Invalid credentials"}
+        auth.js->>index.js: Throw error
+        index.js->>index.html: Display error message
+    end

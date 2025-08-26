@@ -1,0 +1,17 @@
+sequenceDiagram
+    actor User
+    participant RootRedirectServlet
+    participant AuthLogoutEverywhereServlet
+    participant LoginServlet
+    participant Authentication
+    participant DAO
+    User->>AuthLogoutEverywhereServlet: POST /auth/logout-everywhere
+    note over AuthLogoutEverywhereServlet: User identity is validated as in the "login" sequence
+    AuthLogoutEverywhereServlet->>Authentication: invalidateAllSessions(user)
+    Authentication->>DAO: setInvalidationDate(user, now)
+    AuthLogoutEverywhereServlet->>User: 302 Redirect to /login, Set-Cookie (empty)
+    User->>User: delete cookie
+    User->>RootRedirectServlet: GET /
+    RootRedirectServlet->>User: 302 Redirect to /login
+    User->>LoginServlet: GET /login
+    LoginServlet->>User: 200 OK, login.html

@@ -1,0 +1,37 @@
+sequenceDiagram
+    actor User
+    box Client
+        participant index.html
+        participant index.js
+        participant auth.js
+        participant playlist.js
+    end
+    box Server
+        participant PlaylistsWildcardRESTServlet
+        participant Authentication
+        participant DAO
+    end
+    User->>index.html: Click "Reorder" button on playlist
+    index.html->>index.js: Handle reorder click
+    index.js->>index.js: openEmptyModal(playlistId)
+    index.js->>playlist.js: new Playlist(auth, playlistId)
+    playlist.js->>auth.js: authenticatedFetch(/api/playlists/{id}/songs)
+    auth.js->>PlaylistsWildcardRESTServlet: GET /api/playlists/{playlistId}/songs
+    note over PlaylistsWildcardRESTServlet: User authentication validated
+    PlaylistsWildcardRESTServlet->>DAO: getSongsInPlaylist(playlistId)
+    DAO->>PlaylistsWildcardRESTServlet: List<Song>
+    PlaylistsWildcardRESTServlet->>playlist.js: 200 OK [songs array]
+    playlist.js->>index.js: Playlist loaded with songs
+    index.js->>index.html: Display modal with draggable song list
+    User->>index.html: Drag and drop songs to reorder
+    index.html->>index.js: Update DOM order in real-time
+    User->>index.html: Click "Save Changes"
+    index.html->>index.js: Handle save click
+    index.js->>index.js: Collect current order from DOM
+    index.js->>auth.js: authenticatedFetch(/api/playlists/{id}/song-order, PUT, [songIds])
+    auth.js->>PlaylistsWildcardRESTServlet: PUT /api/playlists/{playlistId}/song-order [reorderedSongIds]
+    note over PlaylistsWildcardRESTServlet: User authentication and ownership validated
+    PlaylistsWildcardRESTServlet->>DAO: getSongsInPlaylist(playlistId)
+    PlaylistsWildcardRESTServlet->>DAO: updateSongOrder(playlistId, reorderedSongIds)
+    PlaylistsWildcardRESTServlet->>index.js: 200 OK {success: true}
+    index.js->>index.html: Close modal and refresh playlist view

@@ -1,0 +1,10 @@
+sequenceDiagram
+    actor User
+    participant RootRedirectServlet
+    participant AuthLogoutServlet
+    participant LoginServlet
+    User->>AuthLogoutServlet: POST /auth/logout
+    AuthLogoutServlet->>User: 302 Redirect to /login, Set-Cookie (empty)
+    User->>User: delete cookie
+    User->>LoginServlet: GET /login
+    LoginServlet->>User: 200 OK, login.html

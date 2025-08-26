@@ -1,0 +1,33 @@
+sequenceDiagram
+    actor User
+    participant HomeServlet
+    participant FormCreateSongServlet
+    participant AssetCrudManager
+    participant DAO
+    participant FileSystem
+    User->>HomeServlet: GET /home
+    note over HomeServlet: User identity is validated as in the "login" sequence
+    HomeServlet->>DAO: getSongsOfUser(user)
+    HomeServlet->>DAO: getGenres()
+    HomeServlet->>User: 200 OK, home.html (with create song form)
+    User->>FormCreateSongServlet: POST /form/create-song {songName, artist, albumName, albumYear, genre, songFile, artwork}
+    note over FormCreateSongServlet: User identity is validated as in the "login" sequence
+    alt Valid multipart form data
+        FormCreateSongServlet->>AssetCrudManager: createSongFromFormData(formData, user)
+        AssetCrudManager->>FileSystem: save song file to disk
+        alt Artwork provided
+            AssetCrudManager->>FileSystem: process and save artwork as WebP
+        end
+        AssetCrudManager->>DAO: insertSong(song)
+        AssetCrudManager->>FormCreateSongServlet: success
+        FormCreateSongServlet->>User: 302 Redirect to /home
+    else Invalid form data
+        FormCreateSongServlet->>User: 302 Redirect to /home?error=invalid_data
+    else Invalid field data
+        FormCreateSongServlet->>User: 302 Redirect to /home?error=invalid_data&field=fieldName
+    else File too large
+        FormCreateSongServlet->>User: 302 Redirect to /home?error=invalid_data&field=fieldName&maxSize=size
+    end
+    User->>HomeServlet: GET /home
+    HomeServlet->>DAO: getSongsOfUser(user)
+    HomeServlet->>User: 200 OK, home.html (updated with new song)

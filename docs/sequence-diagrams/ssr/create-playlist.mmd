@@ -1,0 +1,36 @@
+sequenceDiagram
+    actor User
+    participant HomeServlet
+    participant FormCreatePlaylistServlet
+    participant PlaylistServlet
+    participant Authentication
+    participant DAO
+    User->>HomeServlet: GET /home
+    note over HomeServlet: User identity is validated as in the "login" sequence
+    HomeServlet->>DAO: getPlaylistsOfOwner(user)
+    HomeServlet->>DAO: getSongsOfUser(user)
+    HomeServlet->>DAO: getGenres()
+    HomeServlet->>User: 200 OK, home.html (with create playlist form)
+    User->>FormCreatePlaylistServlet: POST /form/create-playlist {playlistName, songIds[]}
+    FormCreatePlaylistServlet->>Authentication: validateToken(token)
+    Authentication->>FormCreatePlaylistServlet: User
+    alt Playlist name is valid
+        FormCreatePlaylistServlet->>DAO: insertPlaylist(playlist)
+        DAO->>FormCreatePlaylistServlet: Playlist
+        loop For each selected song
+            FormCreatePlaylistServlet->>DAO: addSongToPlaylist(playlistId, songId, username)
+        end
+        FormCreatePlaylistServlet->>User: 302 Redirect to /playlist?id=playlistId
+    else Playlist name is invalid
+        FormCreatePlaylistServlet->>User: 302 Redirect to /home?error=playlist_invalid_name
+    end
+    alt Successful creation
+        User->>PlaylistServlet: GET /playlist?id=playlistId
+        note over PlaylistServlet: User identity is validated as in the "login" sequence
+        PlaylistServlet->>DAO: getPlaylistById(playlistId)
+        PlaylistServlet->>DAO: getSongsInPlaylistPaginated(playlistId, page)
+        PlaylistServlet->>User: 200 OK, playlist.html
+    else Failed creation
+        User->>HomeServlet: GET /home?error=playlist_creation_failed
+        HomeServlet->>User: 200 OK, home.html (with error message)
+    end

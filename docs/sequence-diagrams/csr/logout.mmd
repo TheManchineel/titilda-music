@@ -1,0 +1,15 @@
+sequenceDiagram
+    actor User
+    box Client
+        participant index.html
+        participant index.js
+        participant auth.js
+    end
+    User->>index.html: Click logout button
+    index.html->>index.js: Handle logout click
+    index.js->>auth.js: logout()
+    auth.js->>auth.js: Clear token from localStorage
+    auth.js->>auth.js: Clear user info from localStorage
+    auth.js->>index.html: Redirect to /login (window.location.href)
+    index.html->>index.js: Initialize login page
+    index.js->>index.html: Show login form
