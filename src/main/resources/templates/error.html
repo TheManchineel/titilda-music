@@ -232,36 +232,6 @@
             box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
         }
 
-        /* Creepy eyes in corners */
-        .eyes {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, #ff0000 30%, #990000 70%);
-            border-radius: 50%;
-            animation: blink 4s infinite;
-        }
-
-        .eyes.top-left {
-            top: 20px;
-            left: 20px;
-        }
-
-        .eyes.top-right {
-            top: 20px;
-            right: 20px;
-        }
-
-        .eyes.bottom-left {
-            bottom: 20px;
-            left: 20px;
-        }
-
-        .eyes.bottom-right {
-            bottom: 20px;
-            right: 20px;
-        }
-
         @keyframes blink {
 
             0%,
@@ -305,12 +275,6 @@
 </head>
 
 <body>
-    <!-- Creepy eyes in corners -->
-    <div class="eyes top-left"></div>
-    <div class="eyes top-right"></div>
-    <div class="eyes bottom-left"></div>
-    <div class="eyes bottom-right"></div>
-
     <div class="container">
         <div class="skull">💀</div>
 

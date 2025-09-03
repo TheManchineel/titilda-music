@@ -1,7 +1,5 @@
 package org.titilda.music.base.model.mimetypes;
 
-import java.util.Arrays;
-
 public enum SongMimeType {
     MP3("audio/mpeg", "mp3"),
     WAV("audio/wav", "wav"),
@@ -11,12 +9,7 @@ public enum SongMimeType {
     private final String mimeType;
     private final String extension;
 
-
-
-    public static final String[] acceptedMimeTypes = Arrays.stream(values()).map(SongMimeType::getMimeType).toArray(String[]::new);
-    public static final String[] acceptedExtensions = Arrays.stream(values()).map(SongMimeType::getExtension).toArray(String[]::new);
-
-    private SongMimeType(String mimeType, String extension) {
+    SongMimeType(String mimeType, String extension) {
         this.mimeType = mimeType;
         this.extension = extension;
     }

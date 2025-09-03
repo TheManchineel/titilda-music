@@ -36,7 +36,6 @@ public final class HomeServlet extends BaseAuthenticatedGetServlet {
             User user) throws InternalErrorException {
         Map<String, Object> variables = new HashMap<>();
 
-        // Handle error parameters from form submissions
         String error = request.getParameter("error");
         String field = request.getParameter("field");
         String maxSize = request.getParameter("maxSize");
@@ -59,7 +58,6 @@ public final class HomeServlet extends BaseAuthenticatedGetServlet {
             }
         }
 
-        // Add some example variables
         variables.put("user", user);
         variables.put("currentTime", new java.util.Date());
         variables.put("userAgent", request.getHeader("User-Agent"));
@@ -81,9 +79,6 @@ public final class HomeServlet extends BaseAuthenticatedGetServlet {
         } catch (SQLException _) {
             throw new InternalErrorException("Failed to connect to database");
         }
-
-        // You can add any data your template needs
-        // For example: user info, music data, etc.
 
         return variables;
     }

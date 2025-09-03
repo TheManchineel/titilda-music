@@ -121,8 +121,8 @@ public abstract class MultiPartValidator {
                 assignField(field, this, part);
             }
 
-        } catch (IOException | ServletException e) {
-            throw new IllegalArgumentException(e);
+        } catch (IOException | ServletException _) {
+            throw new InvalidFormDataException("Error reading form");
         }
     }
 }
