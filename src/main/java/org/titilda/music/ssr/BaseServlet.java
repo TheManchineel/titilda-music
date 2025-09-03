@@ -22,6 +22,7 @@ public abstract sealed class BaseServlet extends HttpServlet implements CookieTo
                 BaseServlet.AUTHENTICATION_COOKIE_NAME,
                 token
         );
+        tokenCookie.setMaxAge(60 * 60 * 24 * 30);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
         return tokenCookie;
